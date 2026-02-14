@@ -35,6 +35,12 @@ export default function Home() {
     const lastAutoRefreshRef = useRef<string | null>(null);
     const [refreshStatus, setRefreshStatus] = useState<'idle' | 'success' | 'no-change'>('idle');
 
+    // Track timestamp in ref for comparison without triggering re-renders of the callback
+    const timestampRef = useRef(timestamp);
+    useEffect(() => {
+        timestampRef.current = timestamp;
+    }, [timestamp]);
+
     // Get translations
     const t = translations[language];
     const dateLocale = language === 'es' ? es : enUS;
@@ -47,7 +53,7 @@ export default function Home() {
             setError(null);
             setRefreshStatus('idle');
 
-            const currentTimestamp = timestamp; // Capture current timestamp
+            const prevTimestamp = timestampRef.current;
 
             const url = forceRefresh ? '/api/market-data?force=true' : '/api/market-data';
             console.log(`[CLIENT] Fetching URL: ${url}`);
@@ -63,11 +69,11 @@ export default function Home() {
                 error: data.error
             });
 
-            setMarketPrices(data.prices || []);
-            setTimestamp(data.timestamp);
+            if (data.prices) setMarketPrices(data.prices);
+            if (data.timestamp) setTimestamp(data.timestamp);
 
             // Set feedback status
-            if (data.timestamp !== currentTimestamp && data.error !== 'TOKEN_EXPIRED') {
+            if (data.timestamp && data.timestamp !== prevTimestamp && data.error !== 'TOKEN_EXPIRED') {
                 setRefreshStatus('success');
             } else {
                 setRefreshStatus('no-change');
@@ -90,10 +96,7 @@ export default function Home() {
             setLoading(false);
             console.log('[CLIENT] Fetch finished, loading set to false');
         }
-    }, [timestamp]); // Depend on timestamp to allow retry logic? Actually, we want a stable function. 
-    // If we depend on 'timestamp', wait. 
-    // fetchMarketData USES 'timestamp' (currentTimestamp = timestamp).
-    // So logic dictates it must be in deps.
+    }, []); // Stable callback
 
     // Calculate minutes until next update
     useEffect(() => {
@@ -102,26 +105,17 @@ export default function Home() {
         const checkUpdate = () => {
             const now = new Date();
             const lastUpdate = new Date(timestamp);
-            // Default update interval is 1 hour
             const nextUpdate = new Date(lastUpdate.getTime() + 60 * 60 * 1000);
             const diffMs = nextUpdate.getTime() - now.getTime();
             const minutesUntil = Math.max(0, Math.floor(diffMs / (1000 * 60)));
 
             setNextUpdateMinutes(minutesUntil);
 
-            // Logic: If we are past the update time (or close to it), we should try to refresh.
-            // We retry every minute if the timestamp hasn't changed yet.
             if (diffMs <= 0 && !loading) {
-                // If we haven't tried refreshing recently (e.g. in the last 60s), try now.
-                // Or simply rely on the fact that if we just fetched and timestamp didn't change, we wait for next interval.
-                // We'll use a simple throttle: don't fetch if we fetched < 1min ago?
-                // For simplicity: If minutesUntil is 0, we try to fetch. The fetchMarketData has internal loading state to prevent parallel requests.
-                // We pass forceRefresh=true to bypass some caches if needed, or rely on standard revalidation.
-                // To avoid spamming, we can check if lastAutoRefreshRef is less than 1 minute ago.
                 const nowTime = Date.now();
                 const lastTry = lastAutoRefreshRef.current ? parseInt(lastAutoRefreshRef.current) : 0;
 
-                if (nowTime - lastTry > 60000) { // Retry every 60 seconds
+                if (nowTime - lastTry > 60000) {
                     console.log('[AUTO-REFRESH] Triggering auto-update check...');
                     lastAutoRefreshRef.current = nowTime.toString();
                     fetchMarketData();
@@ -130,7 +124,7 @@ export default function Home() {
         };
 
         checkUpdate();
-        const interval = setInterval(checkUpdate, 30000); // Check every 30 seconds
+        const interval = setInterval(checkUpdate, 30000);
         return () => clearInterval(interval);
     }, [timestamp, loading, fetchMarketData]);
 

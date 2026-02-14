@@ -11,10 +11,10 @@ export const translations = {
         disclaimerMessage: 'La actualización automática de precios puede fallar ocasionalmente cuando el token de autenticación necesita renovarse. Si los precios no se actualizan, puedes usar los **Precios Manuales** mientras se soluciona el problema.',
 
         // Strategy Box
-        strategyTitle: '📈 Estrategia: Integración Vertical',
-        strategyMessage: 'Si produces tus propios materiales base (como Hierro o Grano), puedes calcular el beneficio real poniendo su precio manual a **0** en la sección de abajo. Esto simula la integración vertical y te muestra cuánto ganarías "limpio" transformando tus propios recursos.',
+        strategyTitle: '💡 Tip: ¿Produces tus propios materiales?',
+        strategyMessage: 'Si tú mismo cultivas el Grano o minas el Hierro, ¡no tienes que comprarlos en el mercado! Para ver tu beneficio real basado solo en tu esfuerzo, ve a la sección de Precios Manuales abajo y pon el precio de esos materiales básicos en 0. De esta forma, verás cuánto dinero "limpio" generas al transformar tus propios recursos. ¡Esto es la Integración Vertical!',
 
-        // Stats Cards
+        // Stats Card
         profitableProducts: 'Productos Rentables',
         bestOption: 'Mejor Opción',
         worstOption: 'Menos Rentable',
@@ -116,8 +116,8 @@ export const translations = {
         disclaimerMessage: 'Automatic price updates may occasionally fail when the authentication token needs renewal. If prices don\'t update, you can use **Manual Prices** while the issue is resolved.',
 
         // Strategy Box
-        strategyTitle: '📈 Strategy: Vertical Integration',
-        strategyMessage: 'If you produce your own base materials (like Iron or Grain), you can calculate the real profit by setting their manual price to **0** in the section below. This simulates vertical integration and shows you how much you would earn "clean" by transforming your own resources.',
+        strategyTitle: '💡 Tip: Do you produce your own materials?',
+        strategyMessage: 'If you grow your own Grain or mine your own Iron, you don\'t have to buy them at the market! To see your real profit based only on your effort, go to the Manual Prices section below and set the price of those base materials to 0. This way, you will see exactly how much "clean" money you generate by transforming your own resources. This is Vertical Integration!',
 
         // Stats Cards
         profitableProducts: 'Profitable Products',

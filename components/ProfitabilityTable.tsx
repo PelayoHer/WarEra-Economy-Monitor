@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { ProfitabilityData } from '@/types';
 import { formatPrice } from '@/lib/calculator';
-import { Trophy, Copy, Check } from 'lucide-react';
+import { Trophy, Copy, Check, HelpCircle } from 'lucide-react';
+import HelpModal from './HelpModal';
 import { translations, Language } from '@/lib/i18n';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 export default function ProfitabilityTable({ data, language }: Props) {
     const t = translations[language];
     const [copiedId, setCopiedId] = useState<string | null>(null);
+    const [showHelp, setShowHelp] = useState(false);
 
     const copyToClipboard = useCallback((text: string, id: string) => {
         navigator.clipboard.writeText(text);
@@ -32,16 +34,26 @@ export default function ProfitabilityTable({ data, language }: Props) {
     return (
         <div className="glass-card overflow-hidden">
             <div className="p-4 bg-secondary/30 border-b border-secondary/50">
-                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                    <Trophy className="w-6 h-6 text-primary" />
-                    {t.rankingTitle}
-                    <div>
-                        <p className="text-sm text-foreground/60">{t.bestOption}</p>
-                        <p className="text-lg font-bold text-success mt-1 truncate">
+                <div className="flex items-center justify-between gap-4">
+                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                        <Trophy className="w-6 h-6 text-primary" />
+                        {t.rankingTitle}
+                        <button
+                            onClick={() => setShowHelp(true)}
+                            className="p-1.5 hover:bg-primary/20 rounded-full text-primary transition-colors"
+                            title="Help / Info"
+                        >
+                            <HelpCircle className="w-5 h-5" />
+                        </button>
+                    </h2>
+
+                    <div className="text-right">
+                        <p className="text-[10px] uppercase tracking-wider text-foreground/40 font-bold">{t.bestOption}</p>
+                        <p className="text-sm font-bold text-success truncate max-w-[120px]">
                             {(t.itemNames as Record<string, string>)[topProduct] || topProduct}
                         </p>
                     </div>
-                </h2>
+                </div>
                 <p className="text-sm text-foreground/60 mt-1">
                     {t.rankingSubtitle}
                 </p>
@@ -171,6 +183,11 @@ export default function ProfitabilityTable({ data, language }: Props) {
                     {data.filter(d => d.netProfit > 0).length} {t.profitableSummary} {data.length} {t.analyzed}
                 </p>
             </div>
+            <HelpModal
+                isOpen={showHelp}
+                onClose={() => setShowHelp(false)}
+                language={language}
+            />
         </div>
     );
 }

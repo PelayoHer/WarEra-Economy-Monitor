@@ -14,6 +14,16 @@ export const translations = {
         strategyTitle: '💡 Tip: ¿Produces tus propios materiales?',
         strategyMessage: 'Si tú mismo cultivas el Grano o minas el Hierro, ¡no tienes que comprarlos en el mercado! Pon su precio manual a 0 para ver tu beneficio "limpio". Por defecto, la herramienta siempre elige el camino más barato: si el mercado vende el material base por debajo de tu coste de mano de obra, usará ese precio para calcular tu coste final.',
 
+        // Help Modal
+        helpTitle: '📖 ¿Cómo entender el Ranking?',
+        helpRule1Title: '🏮 La Regla del "Menos Malo"',
+        helpRule1Text: 'El ranking siempre pone arriba el mejor resultado. Si todo el mercado está en rojo, el primero es simplemente el que menos dinero te hace perder.',
+        helpRule2Title: '🧠 La Compra Inteligente',
+        helpRule2Text: 'La app detecta si es más barato comprar ingredientes o fabricarlos. Si el petróleo está muy barato, calculará el coste del aceite usándolo como base.',
+        helpRule3Title: '🛑 Columna "Oportunidad"',
+        helpRule3Text: 'Si dice "COMPRAR", el mercado vende el producto más barato de lo que te cuesta a ti fabricarlo. ¡No trabajes a pérdida!',
+        close: 'Cerrar',
+
         // Stats Card
         profitableProducts: 'Productos Rentables',
         bestOption: 'Mejor Opción',
@@ -140,6 +150,16 @@ export const translations = {
         // Strategy Box
         strategyTitle: '💡 Tip: Do you produce your own materials?',
         strategyMessage: 'If you grow your own Grain or mine your own Iron, you don\'t have to buy them! Set their manual price to 0 to see your "clean" profit. By default, the tool always picks the cheapest path: if the market sells base materials below your labor cost, it will use that price to calculate your final cost.',
+
+        // Help Modal
+        helpTitle: '📖 How to read the Ranking?',
+        helpRule1Title: '🏮 The "Least Bad" Rule',
+        helpRule1Text: 'The ranking always puts the best result at the top. If the entire market is in the red, the first one is simply the one that loses you the least amount of money.',
+        helpRule2Title: '🧠 Smart Buy Logic',
+        helpRule2Text: 'The app detects if it is cheaper to buy ingredients or craft them. If petroleum is very cheap, it will use its market price to calculate the cost of oil.',
+        helpRule3Title: '🛑 "Opportunity" Column',
+        helpRule3Text: 'If it says "BUY", the market is selling the product cheaper than it costs you to make it. Do not work for a loss!',
+        close: 'Close',
 
         // Stats Cards
         profitableProducts: 'Profitable Products',

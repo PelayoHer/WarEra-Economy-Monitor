@@ -10,6 +10,10 @@ export const translations = {
         disclaimerTitle: 'ℹ️ Aviso Importante',
         disclaimerMessage: 'La actualización automática de precios puede fallar ocasionalmente cuando el token de autenticación necesita renovarse. Si los precios no se actualizan, puedes usar los **Precios Manuales** mientras se soluciona el problema.',
 
+        // Strategy Box
+        strategyTitle: '📈 Estrategia: Integración Vertical',
+        strategyMessage: 'Si produces tus propios materiales base (como Hierro o Grano), puedes calcular el beneficio real poniendo su precio manual a **0** en la sección de abajo. Esto simula la integración vertical y te muestra cuánto ganarías "limpio" transformando tus propios recursos.',
+
         // Stats Cards
         profitableProducts: 'Productos Rentables',
         bestOption: 'Mejor Opción',
@@ -110,6 +114,10 @@ export const translations = {
         // Disclaimer
         disclaimerTitle: 'ℹ️ Important Notice',
         disclaimerMessage: 'Automatic price updates may occasionally fail when the authentication token needs renewal. If prices don\'t update, you can use **Manual Prices** while the issue is resolved.',
+
+        // Strategy Box
+        strategyTitle: '📈 Strategy: Vertical Integration',
+        strategyMessage: 'If you produce your own base materials (like Iron or Grain), you can calculate the real profit by setting their manual price to **0** in the section below. This simulates vertical integration and shows you how much you would earn "clean" by transforming your own resources.',
 
         // Stats Cards
         profitableProducts: 'Profitable Products',

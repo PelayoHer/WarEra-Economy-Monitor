@@ -16,7 +16,7 @@ import DisclaimerBanner from '@/components/DisclaimerBanner';
 import Footer from '@/components/Footer';
 import { formatDistanceToNow } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
-import { AlertCircle, Clock, Check } from 'lucide-react';
+import { AlertCircle, Clock, Check, X, TrendingUp } from 'lucide-react';
 
 export default function Home() {
     const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([]);
@@ -28,6 +28,7 @@ export default function Home() {
     const [manualPrices, setManualPrices] = useLocalStorage<PriceOverrides>('manualPrices', {});
     const [salaryPerPT, setSalaryPerPT] = useLocalStorage<number>('salaryPerPT', 1.5);
     const [language, setLanguage] = useLocalStorage<Language>('language', 'es');
+    const [showStrategy, setShowStrategy] = useLocalStorage<boolean>('showStrategyBox', true);
 
     // Auto-refresh state
     const [nextUpdateMinutes, setNextUpdateMinutes] = useState<number | null>(null);
@@ -131,12 +132,12 @@ export default function Home() {
         checkUpdate();
         const interval = setInterval(checkUpdate, 30000); // Check every 30 seconds
         return () => clearInterval(interval);
-    }, [timestamp, loading]);
+    }, [timestamp, loading, fetchMarketData]);
 
     // Load data on mount
     useEffect(() => {
         fetchMarketData();
-    }, []);
+    }, [fetchMarketData]);
 
     // Merge prices with manual overrides
     const mergedPrices = useMemo(() => {
@@ -237,9 +238,35 @@ export default function Home() {
                     )}
                 </div>
 
-                {/* Disclaimer Banner */}
-                <div className={zenMode ? 'zen-mode-hidden' : ''}>
+                {/* Disclaimer Banner & Strategy Info */}
+                <div className={zenMode ? 'zen-mode-hidden' : 'space-y-4'}>
                     <DisclaimerBanner language={language} />
+
+                    {/* Strategy Info Box (Vertical Integration) */}
+                    {showStrategy && (
+                        <div className="glass-card p-4 relative border-l-4 border-primary bg-primary/5 animate-in fade-in slide-in-from-top duration-500">
+                            <button
+                                onClick={() => setShowStrategy(false)}
+                                className="absolute top-2 right-2 p-1 hover:bg-white/10 rounded-full transition-colors"
+                                title="Cerrar"
+                            >
+                                <X className="w-4 h-4 text-foreground/40" />
+                            </button>
+                            <div className="flex gap-3">
+                                <div className="flex-shrink-0 mt-1">
+                                    <TrendingUp className="w-5 h-5 text-primary" />
+                                </div>
+                                <div className="pr-6">
+                                    <h3 className="text-sm font-bold text-primary mb-1">
+                                        {t.strategyTitle}
+                                    </h3>
+                                    <p className="text-xs text-foreground/70 leading-relaxed">
+                                        {t.strategyMessage}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Loading Indicator */}

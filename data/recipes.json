@@ -1,0 +1,170 @@
+{
+    "recipes": [
+        {
+            "id": "lead",
+            "name": "Plomo",
+            "inputs": [],
+            "work_points": 1,
+            "is_base": true
+        },
+        {
+            "id": "lightAmmo",
+            "name": "Muni. Ligera",
+            "inputs": [
+                {
+                    "id": "lead",
+                    "qty": 1
+                }
+            ],
+            "work_points": 1
+        },
+        {
+            "id": "ammo",
+            "name": "Munición",
+            "inputs": [
+                {
+                    "id": "lead",
+                    "qty": 4
+                }
+            ],
+            "work_points": 4
+        },
+        {
+            "id": "heavyAmmo",
+            "name": "Muni. Pesada",
+            "inputs": [
+                {
+                    "id": "lead",
+                    "qty": 16
+                }
+            ],
+            "work_points": 16
+        },
+        {
+            "id": "grain",
+            "name": "Grano",
+            "inputs": [],
+            "work_points": 1,
+            "is_base": true
+        },
+        {
+            "id": "bread",
+            "name": "Pan",
+            "inputs": [
+                {
+                    "id": "grain",
+                    "qty": 10
+                }
+            ],
+            "work_points": 10
+        },
+        {
+            "id": "livestock",
+            "name": "Ganado",
+            "inputs": [],
+            "work_points": 20,
+            "is_base": true
+        },
+        {
+            "id": "steak",
+            "name": "Bistec",
+            "inputs": [
+                {
+                    "id": "livestock",
+                    "qty": 1
+                }
+            ],
+            "work_points": 20
+        },
+        {
+            "id": "fish",
+            "name": "Pescado",
+            "inputs": [],
+            "work_points": 40,
+            "is_base": true
+        },
+        {
+            "id": "cookedFish",
+            "name": "Pesc. Cocido",
+            "inputs": [
+                {
+                    "id": "fish",
+                    "qty": 1
+                }
+            ],
+            "work_points": 40
+        },
+        {
+            "id": "limestone",
+            "name": "P. Caliza",
+            "inputs": [],
+            "work_points": 1,
+            "is_base": true
+        },
+        {
+            "id": "concrete",
+            "name": "Concreto",
+            "inputs": [
+                {
+                    "id": "limestone",
+                    "qty": 10
+                }
+            ],
+            "work_points": 10
+        },
+        {
+            "id": "iron",
+            "name": "Hierro",
+            "inputs": [],
+            "work_points": 1,
+            "is_base": true
+        },
+        {
+            "id": "steel",
+            "name": "Acero",
+            "inputs": [
+                {
+                    "id": "iron",
+                    "qty": 10
+                }
+            ],
+            "work_points": 10
+        },
+        {
+            "id": "petroleum",
+            "name": "Petróleo",
+            "inputs": [],
+            "work_points": 1,
+            "is_base": true
+        },
+        {
+            "id": "oil",
+            "name": "Aceite",
+            "inputs": [
+                {
+                    "id": "petroleum",
+                    "qty": 1
+                }
+            ],
+            "work_points": 1
+        },
+        {
+            "id": "coca",
+            "name": "Planta Mist.",
+            "inputs": [],
+            "work_points": 1,
+            "is_base": true
+        },
+        {
+            "id": "cocain",
+            "name": "Píldora",
+            "inputs": [
+                {
+                    "id": "coca",
+                    "qty": 200
+                }
+            ],
+            "work_points": 200
+        }
+    ]
+}

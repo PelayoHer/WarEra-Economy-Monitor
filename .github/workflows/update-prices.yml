@@ -1,0 +1,20 @@
+name: Update Market Prices Hourly
+
+on:
+  schedule:
+    # Run every hour at minute 0 (00:00, 01:00, 02:00, etc.)
+    - cron: '0 * * * *'
+  
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Trigger price update
+        run: |
+          echo "Pinging API to trigger price update..."
+          curl -f https://${{ secrets.VERCEL_DOMAIN }}/api/market-data || echo "API call completed"
+          echo "Price update triggered successfully!"

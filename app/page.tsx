@@ -124,7 +124,7 @@ export default function Home() {
         };
 
         checkUpdate();
-        const interval = setInterval(checkUpdate, 30000);
+        const interval = setInterval(checkUpdate, 30.5 * 1000);
         return () => clearInterval(interval);
     }, [timestamp, loading, fetchMarketData]);
 

@@ -3,9 +3,7 @@ import { scrapeAllPrices } from '@/lib/scraper';
 import { loadMarketPrices, saveMarketPrices, isCacheStale } from '@/lib/storage';
 import recipes from '@/data/recipes.json';
 
-// ISR: Revalidate every hour (3600 seconds)
-// Next.js will serve cached data and regenerate in background
-export const revalidate = 3600;
+// Next.js will serve cached data based on lib/storage logic
 
 // Allow this route to run for up to 60 seconds (for slow API calls)
 export const maxDuration = 60;

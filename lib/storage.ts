@@ -2,7 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { MarketPrice } from '@/types';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const DATA_DIR = process.env.VERCEL || process.env.NODE_ENV === 'production'
+    ? path.join('/tmp', 'data')
+    : path.join(process.cwd(), 'data');
 const PRICES_FILE = path.join(DATA_DIR, 'market-prices.json');
 
 interface CachedData {

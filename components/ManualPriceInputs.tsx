@@ -95,7 +95,7 @@ export default function ManualPriceInputs({ marketPrices, manualPrices, onPrices
                                         htmlFor={`price-${resource.id}`}
                                         className="block text-sm font-medium text-foreground/80"
                                     >
-                                        {resource.name}
+                                        {(t.itemNames as Record<string, string>)[resource.id] || resource.name}
                                     </label>
 
                                     <div className="flex items-center gap-2">

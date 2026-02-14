@@ -146,8 +146,8 @@ export default function Home() {
     // Calculate stats
     const stats = useMemo(() => {
         const profitableCount = profitabilityData.filter(p => p.netProfit > 0).length;
-        const topProduct = profitabilityData[0]?.recipe.name || 'N/A';
-        const worstProduct = profitabilityData[profitabilityData.length - 1]?.recipe.name || 'N/A';
+        const topProduct = profitabilityData[0]?.recipe.id || 'N/A';
+        const worstProduct = profitabilityData[profitabilityData.length - 1]?.recipe.id || 'N/A';
 
         return {
             totalProducts: profitabilityData.length,

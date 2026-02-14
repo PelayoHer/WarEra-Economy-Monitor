@@ -77,6 +77,28 @@ export const translations = {
             'default': 'Material procesado o recurso básico de WarEra.'
         },
 
+        // Item Names
+        itemNames: {
+            'lead': 'Plomo',
+            'lightAmmo': 'Muni. Ligera',
+            'ammo': 'Munición',
+            'heavyAmmo': 'Muni. Pesada',
+            'grain': 'Grano',
+            'bread': 'Pan',
+            'livestock': 'Ganado',
+            'steak': 'Bistec',
+            'fish': 'Pescado',
+            'cookedFish': 'Pesc. Cocido',
+            'limestone': 'P. Caliza',
+            'concrete': 'Concreto',
+            'iron': 'Hierro',
+            'steel': 'Acero',
+            'petroleum': 'Petróleo',
+            'oil': 'Aceite',
+            'coca': 'Planta Mist.',
+            'cocain': 'Píldora'
+        },
+
         // Calculator
         calculatorTitle: 'Calculadora de Beneficios',
         salaryPerWorkPoint: 'Salario por Punto de Trabajo',
@@ -180,6 +202,28 @@ export const translations = {
             'coca': 'Mysterious plant. Base ingredient for stimulant Pills.',
             'cocain': 'Combat Pill. Consumes Hunger to provide a temporary Damage Buff.',
             'default': 'Processed material or basic resource of WarEra.'
+        },
+
+        // Item Names
+        itemNames: {
+            'lead': 'Lead',
+            'lightAmmo': 'Light Ammo',
+            'ammo': 'Ammunition',
+            'heavyAmmo': 'Heavy Ammo',
+            'grain': 'Grain',
+            'bread': 'Bread',
+            'livestock': 'Livestock',
+            'steak': 'Steak',
+            'fish': 'Fish',
+            'cookedFish': 'Cooked Fish',
+            'limestone': 'Limestone',
+            'concrete': 'Concrete',
+            'iron': 'Iron',
+            'steel': 'Steel',
+            'petroleum': 'Petroleum',
+            'oil': 'Oil',
+            'coca': 'Myst. Plant',
+            'cocain': 'Pill'
         },
 
         // Calculator

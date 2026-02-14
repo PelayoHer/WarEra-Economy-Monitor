@@ -27,12 +27,20 @@ export default function ProfitabilityTable({ data, language }: Props) {
         );
     }
 
+    const topProduct = data[0]?.recipe.id || 'N/A';
+
     return (
         <div className="glass-card overflow-hidden">
             <div className="p-4 bg-secondary/30 border-b border-secondary/50">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                     <Trophy className="w-6 h-6 text-primary" />
                     {t.rankingTitle}
+                    <div>
+                        <p className="text-sm text-foreground/60">{t.bestOption}</p>
+                        <p className="text-lg font-bold text-success mt-1 truncate">
+                            {(t.itemNames as Record<string, string>)[topProduct] || topProduct}
+                        </p>
+                    </div>
                 </h2>
                 <p className="text-sm text-foreground/60 mt-1">
                     {t.rankingSubtitle}
@@ -107,7 +115,9 @@ export default function ProfitabilityTable({ data, language }: Props) {
                                     </td>
                                     <td className="px-4 py-3 font-medium">
                                         <div className="flex items-center gap-2 group relative w-fit">
-                                            <span className="border-b border-dashed border-foreground/30 cursor-help">{item.recipe.name}</span>
+                                            <span className="border-b border-dashed border-foreground/30 cursor-help">
+                                                {(t.itemNames as Record<string, string>)[item.recipe.id] || item.recipe.name}
+                                            </span>
                                             {!isProfit && (
                                                 <span className="px-2 py-0.5 text-xs rounded-full bg-danger/20 text-danger border border-danger/30 hidden sm:inline-block">
                                                     {t.loss}
@@ -115,7 +125,9 @@ export default function ProfitabilityTable({ data, language }: Props) {
                                             )}
                                             {/* Item Description Tooltip */}
                                             <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 pointer-events-none text-left">
-                                                <p className="font-semibold mb-1 text-primary">{item.recipe.name}</p>
+                                                <p className="font-semibold mb-1 text-primary">
+                                                    {(t.itemNames as Record<string, string>)[item.recipe.id] || item.recipe.name}
+                                                </p>
                                                 {(t.itemDescriptions as Record<string, string>)[item.recipe.id] || (t.itemDescriptions as Record<string, string>)['default']}
                                             </div>
                                         </div>

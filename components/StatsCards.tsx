@@ -43,7 +43,9 @@ export default function StatsCards({ stats, language }: Props) {
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="text-sm text-foreground/60">{t.bestOption}</p>
-                        <p className="text-lg font-bold text-success mt-1 truncate">{stats.topProduct}</p>
+                        <p className="text-lg font-bold text-success mt-1 truncate">
+                            {(t.itemNames as Record<string, string>)[stats.topProduct] || stats.topProduct}
+                        </p>
                     </div>
                     <div className="p-3 rounded-full bg-success/20 group-hover:bg-success/30 transition-smooth">
                         <Award className="w-6 h-6 text-success animate-pulse" />
@@ -56,7 +58,9 @@ export default function StatsCards({ stats, language }: Props) {
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="text-sm text-foreground/60">{t.worstOption}</p>
-                        <p className="text-lg font-bold text-danger mt-1 truncate">{stats.worstProduct}</p>
+                        <p className="text-lg font-bold text-danger mt-1 truncate">
+                            {(t.itemNames as Record<string, string>)[stats.worstProduct] || stats.worstProduct}
+                        </p>
                     </div>
                     <div className="p-3 rounded-full bg-danger/20 group-hover:bg-danger/30 transition-smooth">
                         <TrendingDown className="w-6 h-6 text-danger" />

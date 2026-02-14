@@ -83,7 +83,7 @@ export default function ProfitCalculator({ salaryPerPT, onSalaryChange, prices, 
                         >
                             {recipes.map((recipe) => (
                                 <option key={recipe.id} value={recipe.id}>
-                                    {recipe.name}
+                                    {(t.itemNames as Record<string, string>)[recipe.id] || recipe.name}
                                 </option>
                             ))}
                         </select>
@@ -94,7 +94,7 @@ export default function ProfitCalculator({ salaryPerPT, onSalaryChange, prices, 
                 {calculation && (
                     <div className="space-y-3 bg-secondary/30 p-4 rounded-lg">
                         <h3 className="font-semibold text-lg text-primary">
-                            {calculation.recipe.name}
+                            {(t.itemNames as Record<string, string>)[calculation.recipe.id] || calculation.recipe.name}
                         </h3>
 
                         <div className="space-y-2 text-sm">

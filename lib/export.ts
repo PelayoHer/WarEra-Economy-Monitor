@@ -91,7 +91,8 @@ export function exportToPDF(data: ProfitabilityData[], filename: string = 'warer
         didParseCell: (data) => {
             // Color code net profit column
             if (data.column.index === 4 && data.section === 'body') {
-                const profitValue = parseFloat(tableData[data.row.index][4].replace(/[^\d.-]/g, ''));
+                const cellValue = tableData[data.row.index][4];
+                const profitValue = parseFloat(String(cellValue).replace(/[^\d.-]/g, ''));
                 if (profitValue > 0) {
                     data.cell.styles.textColor = [22, 163, 74]; // Green
                 } else if (profitValue < 0) {

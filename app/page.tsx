@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { MarketPrice, PriceOverrides } from '@/types';
 import { recipes, mergeMarketPrices, rankProductsByProfit } from '@/lib/calculator';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -39,7 +39,7 @@ export default function Home() {
     const dateLocale = language === 'es' ? es : enUS;
 
     // Fetch market data
-    const fetchMarketData = async (forceRefresh: boolean = false) => {
+    const fetchMarketData = useCallback(async (forceRefresh: boolean = false) => {
         console.log(`[CLIENT] fetchMarketData called. Force: ${forceRefresh}`);
         try {
             setLoading(true);
@@ -89,7 +89,10 @@ export default function Home() {
             setLoading(false);
             console.log('[CLIENT] Fetch finished, loading set to false');
         }
-    };
+    }, [timestamp]); // Depend on timestamp to allow retry logic? Actually, we want a stable function. 
+    // If we depend on 'timestamp', wait. 
+    // fetchMarketData USES 'timestamp' (currentTimestamp = timestamp).
+    // So logic dictates it must be in deps.
 
     // Calculate minutes until next update
     useEffect(() => {

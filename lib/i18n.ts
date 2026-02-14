@@ -12,7 +12,7 @@ export const translations = {
 
         // Strategy Box
         strategyTitle: '💡 Tip: ¿Produces tus propios materiales?',
-        strategyMessage: 'Si tú mismo cultivas el Grano o minas el Hierro, ¡no tienes que comprarlos en el mercado! Para ver tu beneficio real basado solo en tu esfuerzo, ve a la sección de Precios Manuales abajo y pon el precio de esos materiales básicos en 0. De esta forma, verás cuánto dinero "limpio" generas al transformar tus propios recursos. ¡Esto es la Integración Vertical!',
+        strategyMessage: 'Si tú mismo cultivas el Grano o minas el Hierro, ¡no tienes que comprarlos en el mercado! Pon su precio manual a 0 para ver tu beneficio "limpio". Por defecto, la herramienta siempre elige el camino más barato: si el mercado vende el material base por debajo de tu coste de mano de obra, usará ese precio para calcular tu coste final.',
 
         // Stats Card
         profitableProducts: 'Productos Rentables',
@@ -139,7 +139,7 @@ export const translations = {
 
         // Strategy Box
         strategyTitle: '💡 Tip: Do you produce your own materials?',
-        strategyMessage: 'If you grow your own Grain or mine your own Iron, you don\'t have to buy them at the market! To see your real profit based only on your effort, go to the Manual Prices section below and set the price of those base materials to 0. This way, you will see exactly how much "clean" money you generate by transforming your own resources. This is Vertical Integration!',
+        strategyMessage: 'If you grow your own Grain or mine your own Iron, you don\'t have to buy them! Set their manual price to 0 to see your "clean" profit. By default, the tool always picks the cheapest path: if the market sells base materials below your labor cost, it will use that price to calculate your final cost.',
 
         // Stats Cards
         profitableProducts: 'Profitable Products',

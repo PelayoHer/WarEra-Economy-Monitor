@@ -12,7 +12,7 @@ interface ScrapeResult {
 // Main scraping function
 export async function scrapeAllPrices(recipes: Recipe[]): Promise<ScrapeResult> {
     const prices: MarketPrice[] = [];
-    const token = process.env.WARERA_JWT_TOKEN;
+    const token = process.env.WARERA_TOKEN;
 
     if (!token) {
         console.error('[SCRAPER] No token found (WARERA_JWT_TOKEN is empty)');

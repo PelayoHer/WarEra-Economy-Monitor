@@ -77,7 +77,7 @@ async function scrapePrice(itemId: string, token: string): Promise<number | null
         const encodedInput = encodeURIComponent(JSON.stringify(input));
         const url = `https://api2.warera.io/trpc/itemTrading.getItemTrading?batch=1&input=${encodedInput}`;
 
-        const fingerprint = process.env.WARERA_FINGERPRINT || '4578fb52c7ad5811b524b1564f19e480';
+        const fingerprint = process.env.WARERA_FINGERPRINT;
 
         const response = await fetch(url, {
             headers: {

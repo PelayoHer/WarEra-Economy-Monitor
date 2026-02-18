@@ -19,8 +19,8 @@ export function exportToCSV(data: ProfitabilityData[], filename: string = 'warer
 
     // Combine headers and rows
     const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.join(','))
+        headers.join(';'),
+        ...rows.map(row => row.join(';'))
     ].join('\n');
 
     // Create download link

@@ -2,8 +2,6 @@
 
 > **Advanced Market Analytics & Profitability Calculator for WarEra Strategy Game**
 
-![WarEra Monitor Banner](https://via.placeholder.com/1200x400.png?text=WarEra+Economy+Monitor+Dashboard) 
-*(Note: Replace with actual screenshot after deployment)*
 
 ## 📋 Overview
 
@@ -145,16 +143,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
 
 ## ❤️ Credits
 
 Developed for the **WarEra Community**.
-*Visual Design & Architecture by [Your Name/Handle]*
+*Visual Design & Architecture by PelayoHer*
 
 ---
 

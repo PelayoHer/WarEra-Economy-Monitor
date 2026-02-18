@@ -16,7 +16,7 @@ export default function PlaygroundPage() {
 
     const [companies, setCompanies] = useState<CompanyData[]>([]);
     const [prices, setPrices] = useState<Record<string, number>>({});
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Username search state
@@ -51,9 +51,10 @@ export default function PlaygroundPage() {
         }
     };
 
-    useEffect(() => {
-        loadData(activeUsername);
-    }, []);
+    // Auto-load behavior removed to prevent default user data exposure
+    // useEffect(() => {
+    //     loadData(activeUsername);
+    // }, []);
 
     // Debounced username check for autocomplete
     const checkUsername = useCallback((value: string) => {

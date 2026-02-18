@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { MarketPrice, PriceOverrides } from '@/types';
 import { recipes } from '@/lib/calculator';
 import { Bot, PencilLine, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
+import ItemImage from '@/components/ItemImage';
 import { translations, Language } from '@/lib/i18n';
 
 interface Props {
@@ -93,8 +94,13 @@ export default function ManualPriceInputs({ marketPrices, manualPrices, onPrices
                                 <div key={resource.id} className="space-y-2">
                                     <label
                                         htmlFor={`price-${resource.id}`}
-                                        className="block text-sm font-medium text-foreground/80"
+                                        className="block text-sm font-medium text-foreground/80 flex items-center gap-2"
                                     >
+                                        <ItemImage
+                                            itemId={resource.id}
+                                            itemName={(t.itemNames as Record<string, string>)[resource.id] || resource.name}
+                                            size={24}
+                                        />
                                         {(t.itemNames as Record<string, string>)[resource.id] || resource.name}
                                     </label>
 

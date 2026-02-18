@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { ProfitabilityData } from '@/types';
 import { formatPrice } from '@/lib/calculator';
-import { Trophy, Copy, Check, HelpCircle } from 'lucide-react';
+import { Trophy, Copy, Check, HelpCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import ItemImage from '@/components/ItemImage';
 import HelpModal from './HelpModal';
 import { translations, Language } from '@/lib/i18n';
 
@@ -14,6 +15,48 @@ export default function ProfitabilityTable({ data, language }: Props) {
     const t = translations[language];
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [showHelp, setShowHelp] = useState(false);
+    const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({
+        key: 'netProfit',
+        direction: 'desc'
+    });
+
+    const handleSort = (key: string) => {
+        setSortConfig((current) => ({
+            key,
+            direction: current.key === key && current.direction === 'desc' ? 'asc' : 'desc',
+        }));
+    };
+
+    const sortedData = [...data].sort((a, b) => {
+        const { key, direction } = sortConfig;
+        const multiplier = direction === 'asc' ? 1 : -1;
+
+        switch (key) {
+            case 'product':
+                const nameA = (t.itemNames as Record<string, string>)[a.recipe.id] || a.recipe.name;
+                const nameB = (t.itemNames as Record<string, string>)[b.recipe.id] || b.recipe.name;
+                return nameA.localeCompare(nameB) * multiplier;
+            case 'marketPrice':
+                return (a.marketPrice - b.marketPrice) * multiplier;
+            case 'productionCost':
+                return (a.productionCost - b.productionCost) * multiplier;
+            case 'netProfit':
+                return (a.netProfit - b.netProfit) * multiplier;
+            case 'profitMargin':
+                return (a.profitMargin - b.profitMargin) * multiplier;
+            case 'opportunity':
+                const oppA = a.productionCost < a.marketPrice ? 1 : 0;
+                const oppB = b.productionCost < b.marketPrice ? 1 : 0;
+                return (oppA - oppB) * multiplier;
+            default:
+                return 0;
+        }
+    });
+
+    const SortIcon = ({ columnKey }: { columnKey: string }) => {
+        if (sortConfig.key !== columnKey) return <ArrowUpDown className="w-3 h-3 opacity-30" />;
+        return sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3 text-primary" /> : <ArrowDown className="w-3 h-3 text-primary" />;
+    };
 
     const copyToClipboard = useCallback((text: string, id: string) => {
         navigator.clipboard.writeText(text);
@@ -63,52 +106,83 @@ export default function ProfitabilityTable({ data, language }: Props) {
                 <table className="w-full">
                     <thead className="bg-secondary/50 sticky top-0 z-10 backdrop-blur-sm">
                         <tr>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-foreground w-16 group relative cursor-help">
-                                <span className="border-b border-dashed border-foreground/30">{t.rank}</span>
-                                <div className="absolute left-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50">
-                                    {t.tooltips.rank}
+
+                            <th
+                                className="px-4 py-3 text-left text-sm font-semibold text-foreground group relative cursor-pointer select-none hover:bg-white/5 transition-colors"
+                                onClick={() => handleSort('product')}
+                            >
+                                <div className="flex items-center gap-1">
+                                    {t.product}
+                                    <div className="absolute left-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 font-normal cursor-help pointer-events-none">
+                                        {t.tooltips.product}
+                                    </div>
+                                    <SortIcon columnKey="product" />
                                 </div>
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-foreground group relative cursor-help">
-                                <span className="border-b border-dashed border-foreground/30">{t.product}</span>
-                                <div className="absolute left-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50">
-                                    {t.tooltips.product}
+                            <th
+                                className="px-4 py-3 text-right text-sm font-semibold text-foreground group relative cursor-pointer select-none hover:bg-white/5 transition-colors"
+                                onClick={() => handleSort('marketPrice')}
+                            >
+                                <div className="flex items-center justify-end gap-1">
+                                    <SortIcon columnKey="marketPrice" />
+                                    {t.marketPrice}
+                                    <div className="absolute right-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 font-normal text-left cursor-help pointer-events-none">
+                                        {t.tooltips.marketPrice}
+                                    </div>
                                 </div>
                             </th>
-                            <th className="px-4 py-3 text-right text-sm font-semibold text-foreground group relative cursor-help">
-                                <span className="border-b border-dashed border-foreground/30">{t.marketPrice}</span>
-                                <div className="absolute right-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 text-left">
-                                    {t.tooltips.marketPrice}
+                            <th
+                                className="px-4 py-3 text-right text-sm font-semibold text-foreground group relative cursor-pointer select-none hover:bg-white/5 transition-colors"
+                                onClick={() => handleSort('productionCost')}
+                            >
+                                <div className="flex items-center justify-end gap-1">
+                                    <SortIcon columnKey="productionCost" />
+                                    {t.productionCost}
+                                    <div className="absolute right-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 font-normal text-left cursor-help pointer-events-none">
+                                        {t.tooltips.productionCost}
+                                    </div>
                                 </div>
                             </th>
-                            <th className="px-4 py-3 text-right text-sm font-semibold text-foreground group relative cursor-help">
-                                <span className="border-b border-dashed border-foreground/30">{t.productionCost}</span>
-                                <div className="absolute right-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 text-left">
-                                    {t.tooltips.productionCost}
+                            <th
+                                className="px-4 py-3 text-right text-sm font-semibold text-foreground group relative cursor-pointer select-none hover:bg-white/5 transition-colors"
+                                onClick={() => handleSort('netProfit')}
+                            >
+                                <div className="flex items-center justify-end gap-1">
+                                    <SortIcon columnKey="netProfit" />
+                                    {t.netProfit}
+                                    <div className="absolute right-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 font-normal text-left cursor-help pointer-events-none">
+                                        {t.tooltips.netProfit}
+                                    </div>
                                 </div>
                             </th>
-                            <th className="px-4 py-3 text-right text-sm font-semibold text-foreground group relative cursor-help">
-                                <span className="border-b border-dashed border-foreground/30">{t.netProfit}</span>
-                                <div className="absolute right-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 text-left">
-                                    {t.tooltips.netProfit}
+                            <th
+                                className="px-4 py-3 text-right text-sm font-semibold text-foreground group relative cursor-pointer select-none hover:bg-white/5 transition-colors"
+                                onClick={() => handleSort('profitMargin')}
+                            >
+                                <div className="flex items-center justify-end gap-1">
+                                    <SortIcon columnKey="profitMargin" />
+                                    {t.profitMargin}
+                                    <div className="absolute right-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 font-normal text-left cursor-help pointer-events-none">
+                                        {t.tooltips.profitMargin}
+                                    </div>
                                 </div>
                             </th>
-                            <th className="px-4 py-3 text-right text-sm font-semibold text-foreground group relative cursor-help">
-                                <span className="border-b border-dashed border-foreground/30">{t.profitMargin}</span>
-                                <div className="absolute right-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 text-left">
-                                    {t.tooltips.profitMargin}
-                                </div>
-                            </th>
-                            <th className="px-4 py-3 text-right text-sm font-semibold text-foreground group relative cursor-help">
-                                <span className="border-b border-dashed border-foreground/30">{t.opportunity}</span>
-                                <div className="absolute right-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 text-left">
-                                    {t.tooltips.opportunity}
+                            <th
+                                className="px-4 py-3 text-right text-sm font-semibold text-foreground group relative cursor-pointer select-none hover:bg-white/5 transition-colors"
+                                onClick={() => handleSort('opportunity')}
+                            >
+                                <div className="flex items-center justify-end gap-1">
+                                    <SortIcon columnKey="opportunity" />
+                                    {t.opportunity}
+                                    <div className="absolute right-0 top-full mt-2 w-48 p-2 bg-secondary text-xs text-foreground rounded shadow-xl border border-primary/20 invisible group-hover:visible z-50 font-normal text-left cursor-help pointer-events-none">
+                                        {t.tooltips.opportunity}
+                                    </div>
                                 </div>
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((item, index) => {
+                        {sortedData.map((item, index) => {
                             const isProfit = item.netProfit > 0;
                             const profitColor = isProfit ? 'text-success' : 'text-danger';
                             const isCheaperToProduce = item.productionCost < item.marketPrice;
@@ -120,13 +194,10 @@ export default function ProfitabilityTable({ data, language }: Props) {
                                     key={item.recipe.id}
                                     className={`table-row-modern border-t border-secondary/20 transition-smooth ${index < 3 ? 'bg-gradient-to-r from-success/5 to-transparent' : ''}`}
                                 >
-                                    <td className="px-4 py-3 text-center">
-                                        <span className={`font-mono text-sm ${index < 3 ? 'font-bold text-primary' : 'text-foreground/60'}`}>
-                                            {index + 1}
-                                        </span>
-                                    </td>
+
                                     <td className="px-4 py-3 font-medium">
                                         <div className="flex items-center gap-2 group relative w-fit">
+                                            <ItemImage itemId={item.recipe.id} itemName={(t.itemNames as Record<string, string>)[item.recipe.id] || item.recipe.name} size={32} />
                                             <span className="border-b border-dashed border-foreground/30 cursor-help">
                                                 {(t.itemNames as Record<string, string>)[item.recipe.id] || item.recipe.name}
                                             </span>

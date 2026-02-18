@@ -10,7 +10,7 @@ import ProfitCalculator from '@/components/ProfitCalculator';
 import ManualPriceInputs from '@/components/ManualPriceInputs';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import StatsCards from '@/components/StatsCards';
-import LanguageToggle from '@/components/LanguageToggle';
+
 import ExportButtons from '@/components/ExportButtons';
 import DisclaimerBanner from '@/components/DisclaimerBanner';
 import Footer from '@/components/Footer';
@@ -201,9 +201,7 @@ export default function Home() {
             <div className={`max-w-7xl mx-auto space-y-6 transition-all duration-500 relative z-10 ${zenMode ? 'pt-10' : ''}`}>
                 {/* Header */}
                 <div className={`text-center space-y-3 transition-all duration-500 ${zenMode ? 'opacity-80 scale-95' : ''}`}>
-                    <div className={`flex justify-end gap-2 mb-2 ${zenMode ? 'zen-mode-hidden' : ''}`}>
-                        <LanguageToggle language={language} onLanguageChange={setLanguage} />
-                    </div>
+                    {/* Language Toggle moved to Navbar */}
 
                     <h1 className={`text-4xl md:text-5xl font-bold animate-gradient bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] text-gradient-animate transition-all duration-500 ${zenMode ? 'text-3xl md:text-4xl' : ''}`}>
                         {t.title}

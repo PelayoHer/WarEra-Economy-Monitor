@@ -6,6 +6,81 @@ export const translations = {
         lastUpdate: 'Actualizado',
         nextUpdate: 'Próxima actualización en',
 
+        // Navigation
+        navHome: 'Monitor de Mercado',
+        navProduction: 'Guía de Producción',
+        navMarket: 'Precios de Mercado',
+        navPlayground: 'Playground',
+
+        // Playground
+        playground: {
+            title: 'Área de Pruebas',
+            subtitle: 'Función experimental: Gestor Interactivo de Empresas',
+            refresh: 'Actualizar Datos',
+            loading: 'Cargando...',
+            error: 'Error al cargar datos',
+            noData: 'No hay cadenas de producción activas.',
+            flow: {
+                title: 'Flujo de Recursos',
+                production: 'Producción',
+                consumption: 'Consumo',
+                surplus: 'Superávit',
+                deficit: 'Déficit',
+                balanced: 'Equilibrado',
+                netFlow: 'Flujo Neto',
+                activeCompanies: 'Empresas Activas'
+            },
+            card: {
+                yield: 'Prod. Diaria',
+                revenue: 'Ingresos',
+                wages: 'Salarios',
+                inputs: 'Materiales',
+                net: 'Neto Diario',
+                employees: 'Empleados',
+                bonus: 'Bono Producción',
+                unknown: 'Producto Desconocido',
+                noRecipe: 'Receta no encontrada',
+                engine: 'Motor',
+                storage: 'Alm.',
+                maxWage: 'Salario Máx. Sust.',
+                stock: 'Stock (Items)',
+                full: 'Lleno',
+                time: 'Tiempo'
+            },
+            employee: {
+                title: 'EMPLEADOS',
+                energy: 'ENERGÍA',
+                prod: 'PROD',
+                wage: 'SALARIO',
+                fidelity: 'FID%',
+                add: 'Añadir'
+            },
+            general: {
+                units: 'unidades',
+                currency: 'G'
+            }
+        },
+
+        // Market Page
+        marketTitle: 'Precios de Mercado',
+        marketSubtitle: 'Precios actuales en tiempo real de todos los recursos',
+        lastPriceUpdate: 'Última actualización de precio',
+        trend: 'Tendencia',
+        priceHistory: 'Historial de Precios',
+        currentPrice: 'Precio Actual',
+        volume: 'Volumen',
+        estimatedVolume: 'Volumen (Est)',
+        details: 'Detalles',
+        searchPlaceholder: 'Buscar recurso...',
+        refresh: 'Actualizar',
+
+        // Production Page
+        productionTitle: 'Guía de Producción',
+        productionSubtitle: 'Recetas de crafteo, costes de recursos y puntos de trabajo',
+        inputs: 'Recursos Necesarios',
+        baseProduction: 'Producción Base',
+        workPointsAbbr: 'PT',
+
         // Disclaimer
         disclaimerTitle: 'ℹ️ Aviso Importante',
         disclaimerMessage: 'La actualización automática de precios puede fallar ocasionalmente cuando el token de autenticación necesita renovarse. Si los precios no se actualizan, puedes usar los **Precios Manuales** mientras se soluciona el problema.',
@@ -142,6 +217,81 @@ export const translations = {
         subtitle: 'Real-time market analysis and production optimization',
         lastUpdate: 'Updated',
         nextUpdate: 'Next update in',
+
+        // Navigation
+        navHome: 'Market Monitor',
+        navProduction: 'Production Guide',
+        navMarket: 'Market Prices',
+        navPlayground: 'Playground',
+
+        // Playground
+        playground: {
+            title: 'Playground',
+            subtitle: 'Experimental feature: Interactive Company Manager',
+            refresh: 'Refresh Data',
+            loading: 'Loading...',
+            error: 'Failed to load data',
+            noData: 'No active production chains.',
+            flow: {
+                title: 'Resource Flow',
+                production: 'Production',
+                consumption: 'Consumption',
+                surplus: 'Surplus',
+                deficit: 'Deficit',
+                balanced: 'Balanced',
+                netFlow: 'Net Flow',
+                activeCompanies: 'Active Companies'
+            },
+            card: {
+                yield: 'Daily Yield',
+                revenue: 'Revenue',
+                wages: 'Wages',
+                inputs: 'Inputs',
+                net: 'Daily Net',
+                employees: 'Employees',
+                bonus: 'Production Bonus',
+                unknown: 'Unknown Product',
+                noRecipe: 'No Recipe Found',
+                engine: 'Engine',
+                storage: 'Stor.',
+                maxWage: 'Max Sust. Wage',
+                stock: 'Storage (Items)',
+                full: 'Full',
+                time: 'Time'
+            },
+            employee: {
+                title: 'EMPLOYEES',
+                energy: 'ENERGY',
+                prod: 'PROD',
+                wage: 'WAGE',
+                fidelity: 'FID%',
+                add: 'Add'
+            },
+            general: {
+                units: 'units',
+                currency: 'G'
+            }
+        },
+
+        // Market Page
+        marketTitle: 'Market Prices',
+        marketSubtitle: 'Real-time market prices for all resources',
+        lastPriceUpdate: 'Last price update',
+        trend: 'Trend',
+        priceHistory: 'Price History',
+        currentPrice: 'Current Price',
+        volume: 'Volume',
+        estimatedVolume: 'Volume (Est)',
+        details: 'Details',
+        searchPlaceholder: 'Search resource...',
+        refresh: 'Refresh',
+
+        // Production Page
+        productionTitle: 'Production Guide',
+        productionSubtitle: 'Crafting recipes, resource costs, and work points',
+        inputs: 'Required Resources',
+        baseProduction: 'Base Production',
+        workPointsAbbr: 'WP',
 
         // Disclaimer
         disclaimerTitle: 'ℹ️ Important Notice',

@@ -244,10 +244,13 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                 </div>
 
                 {/* Max Sustain Wage */}
-                <div className="flex justify-between items-center text-xs">
-                    <span className="text-gray-500 text-[10px] uppercase">{t.playground.card.maxWage}:</span>
-                    <span className="font-mono font-bold text-yellow-500">
-                        {maxSustainableWage.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} G
+                <div className="mt-2 p-2 bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-lg flex justify-between items-center shadow-sm">
+                    <div className="flex items-center gap-1.5">
+                        <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
+                        <span className="text-[10px] uppercase font-bold text-purple-300 tracking-wider">{t.playground.card.maxWage}</span>
+                    </div>
+                    <span className={`font-mono font-bold text-sm ${maxSustainableWage >= 0 ? 'text-purple-200' : 'text-red-400'}`}>
+                        {maxSustainableWage.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] text-purple-400/50">G</span>
                     </span>
                 </div>
             </div>

@@ -269,11 +269,13 @@ export async function fetchUserWorkers(userId: string): Promise<CompanyData[]> {
             // Priority 2: Manual fallback calculation using global cache
             // 1. Region Deposit Bonus (Approx 30% typically)
             if (region?.deposit?.type === itemCode) {
-                bonus += region.deposit.bonusPercent || 30; // Fallback to 30 if percent missing but type matches
+                const depBonus = region.deposit.bonusPercent || 30;
+                bonus += depBonus;
             }
             // 2. Country Strategic Bonus (Approx 20% typically)
             if (country?.specializedItem === itemCode) {
-                bonus += country.strategicResources?.bonuses?.productionPercent || 20; // Fallback to 20
+                const stratBonus = country.strategicResources?.bonuses?.productionPercent || 20;
+                bonus += stratBonus;
             }
         }
 

@@ -47,9 +47,9 @@ export default function MarketPage() {
         fetchPrices();
     }, [fetchPrices]);
 
-    const getPrice = (id: string) => {
+    const getPrice = useCallback((id: string) => {
         return prices.find(p => p.productId === id);
-    };
+    }, [prices]);
 
     // Filter and Sort
     const filteredRecipes = useMemo(() => {
@@ -68,7 +68,7 @@ export default function MarketPage() {
                 const nameB = (t.itemNames as Record<string, string>)[b.id] || b.name;
                 return nameA.localeCompare(nameB);
             });
-    }, [recipes, prices, searchTerm, t.itemNames]);
+    }, [recipes, prices, searchTerm, t.itemNames, getPrice]);
 
     // Ticker items (Top 10 by price)
     const tickerItems = useMemo(() => {
@@ -76,7 +76,7 @@ export default function MarketPage() {
             .map(r => ({ ...r, price: getPrice(r.id)?.averagePrice || 0 }))
             .sort((a, b) => b.price - a.price)
             .slice(0, 10);
-    }, [recipes, prices]);
+    }, [recipes, prices, getPrice]);
 
     return (
         <main className="min-h-screen bg-[#0a0f1c] relative text-slate-300 font-sans">

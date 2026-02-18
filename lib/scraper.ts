@@ -82,7 +82,8 @@ async function scrapePrice(itemId: string, token: string): Promise<number | null
         const response = await fetch(url, {
             headers: {
                 'authorization': `Bearer ${token}`, // Header name 'authorization' lowercase usually for tRPC/HTTP2
-                'x-fingerprint': fingerprint,
+                'x-fingerprint': fingerprint || '4578fb52c7ad5811b524b1564f19e480', // Fallback
+
                 'origin': 'https://app.warera.io',
                 'referer': 'https://app.warera.io/',
                 'content-type': 'application/json'

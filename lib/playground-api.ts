@@ -14,7 +14,7 @@ const decodeToken = (token: string) => {
 };
 
 const TOKEN = process.env.WARERA_TOKEN || '';
-const FINGERPRINT = process.env.WARERA_FINGERPRINT || '4578fb52c7ad5811b524b1564f19e480';
+const FINGERPRINT = process.env.WARERA_FINGERPRINT;
 
 export interface Employee {
     id: string;

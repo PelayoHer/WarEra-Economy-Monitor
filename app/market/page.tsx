@@ -12,6 +12,7 @@ import { MarketPrice } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { StockBackground } from '@/components/StockBackground';
+import InflationBox from '@/components/market/InflationBox';
 
 export default function MarketPage() {
     const [language] = useLocalStorage<Language>('language', 'es');
@@ -198,6 +199,8 @@ export default function MarketPage() {
                         })}
                     </div>
                 )}
+
+                <InflationBox language={language} />
 
                 <Footer language={language} />
             </div>

@@ -74,6 +74,21 @@ export const translations = {
         searchPlaceholder: 'Buscar recurso...',
         refresh: 'Actualizar',
 
+        // Inflation
+        inflation: {
+            title: 'Inflación del Mercado',
+            subtitle: 'Variación general del nivel de precios (24h)',
+            rate: 'Tasa de Inflación',
+            basket: 'Cesta de Bienes',
+            statusTitle: 'Estado',
+            basketTitle: 'Variación de Cesta',
+            status: {
+                high: 'Inflación Alta',
+                low: 'Deflación',
+                stable: 'Estable'
+            }
+        },
+
         // Production Page
         productionTitle: 'Guía de Producción',
         productionSubtitle: 'Recetas de crafteo, costes de recursos y puntos de trabajo',
@@ -285,6 +300,21 @@ export const translations = {
         details: 'Details',
         searchPlaceholder: 'Search resource...',
         refresh: 'Refresh',
+
+        // Inflation
+        inflation: {
+            title: 'Market Inflation',
+            subtitle: 'Daily price level change (24h)',
+            rate: 'Inflation Rate',
+            basket: 'Basket of Goods',
+            statusTitle: 'Status',
+            basketTitle: 'Basket Variation',
+            status: {
+                high: 'High Inflation',
+                low: 'Deflation',
+                stable: 'Stable'
+            }
+        },
 
         // Production Page
         productionTitle: 'Production Guide',

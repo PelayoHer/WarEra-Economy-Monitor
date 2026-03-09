@@ -23,7 +23,6 @@ const API_BASE = 'https://api2.warera.io';
 // Public types
 // ---------------------------------------------------------------------------
 
-
 export interface Employee {
     id: string;
     name: string;
@@ -44,11 +43,11 @@ export interface CompanyData {
     employees: Employee[];
     production: number;
     stock: number;
-    productionBonus: number;   // totalBonus in %: deposit + specialized + political
+    productionBonus: number;   // total bonus %
     region: string;
     country: string;
     itemCode: string;
-    // Bonus breakdown (for transparency)
+    // Bonus breakdown for UI transparency
     bonusDeposit: number;
     bonusSpecialized: number;
     bonusPolitical: number;
@@ -65,7 +64,7 @@ export async function getHelpers() {
 }
 
 // ---------------------------------------------------------------------------
-// tRPC helpers  (same pattern as api2.warera.io/trpc)
+// tRPC helpers
 // ---------------------------------------------------------------------------
 
 const DEFAULT_HEADERS = () => ({
@@ -115,20 +114,18 @@ async function ensureGlobalCache() {
     if (Date.now() - _cacheTs < 3_600_000 && Object.keys(_regionMap).length > 0) return;
 
     try {
-        // region.getRegionsObject returns a plain object keyed by regionId
+        // region.getRegionsObject returns a plain keyed object -> convert to map by _id
         const [regionObj, countriesArr] = await Promise.all([
             trpcCall('region.getRegionsObject', {}).then(r => r[0]?.result?.data ?? {}),
             trpcCall('country.getAllCountries', {}).then(r => r[0]?.result?.data ?? []),
         ]);
 
-        // regions
         const rMap: Record<string, any> = {};
         if (regionObj && typeof regionObj === 'object' && !Array.isArray(regionObj)) {
             Object.values(regionObj).forEach((r: any) => { if (r?._id) rMap[r._id] = r; });
         }
         _regionMap = rMap;
 
-        // countries
         const cMap: Record<string, any> = {};
         if (Array.isArray(countriesArr)) {
             countriesArr.forEach((c: any) => { if (c?._id) cMap[c._id] = c; });
@@ -136,30 +133,40 @@ async function ensureGlobalCache() {
         _countryMap = cMap;
 
         _cacheTs = Date.now();
-        console.log(`[PlaygroundAPI] Cache refreshed: ${Object.keys(_regionMap).length} regions, ${Object.keys(_countryMap).length} countries`);
+        console.log(`[PlaygroundAPI] Cache: ${Object.keys(_regionMap).length} regions, ${Object.keys(_countryMap).length} countries`);
     } catch (e) {
-        console.error('[PlaygroundAPI] Cache refresh error:', e);
+        console.error('[PlaygroundAPI] Cache error:', e);
     }
 }
 
 // ---------------------------------------------------------------------------
-// Party ethics cache  (party._id -> ethics axes)
+// Party ethics cache  (party._id -> economy axis value)
 // ---------------------------------------------------------------------------
 
 interface PartyAxes { war: number; foreign: number; economy: number; government: number; }
 
 const _partyCache = new Map<string, PartyAxes | null>();
 
+/**
+ * Exact replica of toolbox Sy(ethics) function (lines 67218-67230).
+ * Maps the party ethics object to numeric axis values.
+ *
+ * Axis mappings (vce array, lines 67183-67204):
+ *   war:        militarism(+1/+2)   / pacifism(-1/-2)
+ *   foreign:    isolationism(+1/+2) / diplomacy(-1/-2)
+ *   government: imperialism(+1/+2)  / republicanism(-1/-2)
+ *   economy:    industrialism(+1/+2)/ agrarianism(-1/-2)
+ *
+ * Positive value = positive pole active, negative = negative pole active.
+ */
 function parsePartyAxes(ethics: any): PartyAxes {
-    // Each axis is stored as { positive: value } or { negative: value }
-    // The toolbox maps:  industrialism (+) / agrarianism (-)  on the `economy` axis
     const axes: PartyAxes = { war: 0, foreign: 0, economy: 0, government: 0 };
 
     const AXES_MAP = [
         { axis: 'war', positive: 'militarism', negative: 'pacifism' },
-        { axis: 'foreign', positive: 'imperialism', negative: 'nationalism' },
+        { axis: 'foreign', positive: 'isolationism', negative: 'diplomacy' },
+        { axis: 'government', positive: 'imperialism', negative: 'republicanism' },
         { axis: 'economy', positive: 'industrialism', negative: 'agrarianism' },
-        { axis: 'government', positive: 'authoritarianism', negative: 'libertarianism' },
     ];
 
     for (const { axis, positive, negative } of AXES_MAP) {
@@ -167,6 +174,7 @@ function parsePartyAxes(ethics: any): PartyAxes {
         const neg = ethics?.[negative];
         if (typeof pos === 'number') (axes as any)[axis] = pos;
         else if (typeof neg === 'number') (axes as any)[axis] = -neg;
+        else (axes as any)[axis] = 0;
     }
     return axes;
 }
@@ -175,7 +183,6 @@ async function fetchPartyAxesBatch(partyIds: string[]): Promise<void> {
     const missing = partyIds.filter(id => id && !_partyCache.has(id));
     if (missing.length === 0) return;
 
-    // Batch in chunks of 100  (same pattern as the toolbox)
     const CHUNK = 100;
     for (let i = 0; i < missing.length; i += CHUNK) {
         const chunk = missing.slice(i, i + CHUNK);
@@ -193,15 +200,17 @@ async function fetchPartyAxesBatch(partyIds: string[]): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// Production bonus formula  (reverse-engineered from toolbox source)
+// Production bonus formula — exact replica of toolbox Rd() / _ce() / Cce() / BR()
 //
-//  totalBonus = specializedItemBonus + depositBonus + politicalBonus
+// Source refs (index.js):
+//   xce table        lines 67206-67211
+//   BR(axis, value)  lines 67212-67216  -> bonus table lookup
+//   _ce(axes, item)  lines 67243-67247  -> industrialist bonus (economy > 0)
+//   Cce(axes, item)  lines 67248-67252  -> agrarian bonus      (economy < 0)
+//   Rd({...})        lines 67253-67264  -> total = specialized + deposit + industrialist + agrarian
 //
-//  politicalBonus:
-//    - Industrialist items: ammo, lightAmmo, heavyAmmo, lead, steel, concrete, iron, oil, petroleum
-//      â†’ economy axis > 0  â†’ normal(1)=10%, fanatic(2)=30%
-//    - Agrarian items:     coca, grain, livestock, fish
-//      â†’ economy axis < 0  â†’ normal(-1)=10%, fanatic(-2)=30%
+// Industrialist items (yce set): ammo, lightAmmo, heavyAmmo, lead, steel, concrete, iron, oil, petroleum
+// Agrarian items      (wce set): coca, grain, livestock, fish
 // ---------------------------------------------------------------------------
 
 const INDUSTRIALIST_ITEMS = new Set([
@@ -209,27 +218,37 @@ const INDUSTRIALIST_ITEMS = new Set([
 ]);
 const AGRARIAN_ITEMS = new Set(['coca', 'grain', 'livestock', 'fish']);
 
-const POLITICAL_BONUS: Record<string, Record<string, number>> = {
-    war: { normal: 5, fanatic: 15 },
-    foreign: { normal: 5, fanatic: 15 },
-    economy: { normal: 10, fanatic: 30 },
-    government: { normal: 10, fanatic: 30 },
-};
-
-function getAxisBonus(axisValue: number, axisKey: string): number {
-    if (axisValue === 0) return 0;
-    const tier = Math.abs(axisValue) >= 2 ? 'fanatic' : 'normal';
-    return POLITICAL_BONUS[axisKey]?.[tier] ?? 0;
+/** Exact replica of toolbox BR(axisKey, axisValue) */
+function BR(axisKey: string, axisValue: number): number {
+    if (!axisValue) return 0;
+    const tier = Math.abs(axisValue) === 2 ? 'fanatic' : 'normal';
+    const TABLE: Record<string, Record<string, number>> = {
+        war: { normal: 5, fanatic: 15 },
+        foreign: { normal: 5, fanatic: 15 },
+        economy: { normal: 10, fanatic: 30 },
+        government: { normal: 10, fanatic: 30 },
+    };
+    return TABLE[axisKey]?.[tier] ?? 0;
 }
 
-function calcPoliticalBonus(axes: PartyAxes | null | undefined, itemCode: string): number {
-    if (!axes) return 0;
-    const econ = axes.economy ?? 0;
-    if (INDUSTRIALIST_ITEMS.has(itemCode) && econ > 0) return getAxisBonus(econ, 'economy');
-    if (AGRARIAN_ITEMS.has(itemCode) && econ < 0) return getAxisBonus(econ, 'economy');
-    return 0;
+/** Exact replica of toolbox _ce(axes, itemCode) — industrialist bonus */
+function calcIndustrialistBonus(axes: PartyAxes | null | undefined, itemCode: string): number {
+    if (!itemCode || !INDUSTRIALIST_ITEMS.has(itemCode)) return 0;
+    const econ = axes?.economy ?? 0;
+    return econ <= 0 ? 0 : BR('economy', econ);
 }
 
+/** Exact replica of toolbox Cce(axes, itemCode) — agrarian bonus */
+function calcAgrarianBonus(axes: PartyAxes | null | undefined, itemCode: string): number {
+    if (!itemCode || !AGRARIAN_ITEMS.has(itemCode)) return 0;
+    const econ = axes?.economy ?? 0;
+    return econ >= 0 ? 0 : BR('economy', econ);
+}
+
+/**
+ * Exact replica of toolbox Rd({axes, itemCode, specializedItemBonus, depositBonus}).
+ * total = industrialistBonus + agrarianBonus + specializedItemBonus + depositBonus
+ */
 function calcProductionBonus(
     itemCode: string,
     regionId: string,
@@ -239,22 +258,27 @@ function calcProductionBonus(
     const region = _regionMap[regionId] ?? null;
     const country = _countryMap[countryId] ?? null;
 
-    // 1. Deposit bonus  â€” region has a natural resource matching the item
-    const deposit =
-        region?.deposit?.type === itemCode
-            ? (typeof region.deposit.bonusPercent === 'number' ? region.deposit.bonusPercent : 30)
-            : 0;
+    // 1. Deposit bonus: region.deposit.type must match the produced item
+    //    "P = w.deposit?.type === A, V = P ? w.deposit.bonusPercent : 0"  (line 67583-67585)
+    const isDepositMatch = region?.deposit?.type === itemCode;
+    const deposit = isDepositMatch
+        ? (typeof region!.deposit.bonusPercent === 'number' ? region!.deposit.bonusPercent : 0)
+        : 0;
 
-    // 2. Specialized item bonus  â€” country has chosen this item as its strategic specialization
-    const specialized =
-        country?.specializedItem === itemCode
-            ? (country?.strategicResources?.bonuses?.productionPercent ?? 0)
-            : 0;
+    // 2. Specialized item bonus: only when country.specializedItem === produced item
+    //    "F = M ? (C.specializedItemBonus ?? 0) : 0"  (line 67584)
+    const isSpecialized = country?.specializedItem === itemCode;
+    const specialized = isSpecialized
+        ? (country?.strategicResources?.bonuses?.productionPercent ?? 0)
+        : 0;
 
-    // 3. Political bonus  ( party ideology â†’ economy axis )
-    const political = calcPoliticalBonus(partyAxes, itemCode);
+    // 3. Political bonus = industrialist + agrarian (only one can be > 0 at a time)
+    const industrialist = calcIndustrialistBonus(partyAxes, itemCode);
+    const agrarian = calcAgrarianBonus(partyAxes, itemCode);
+    const political = industrialist + agrarian;
 
-    return { deposit, specialized, political, total: deposit + specialized + political };
+    const total = specialized + deposit + political;
+    return { deposit, specialized, political, total };
 }
 
 // ---------------------------------------------------------------------------
@@ -313,10 +337,12 @@ export async function fetchUserWorkers(userId: string): Promise<CompanyData[]> {
     const workerData: any[] = workersRes[0]?.result?.data?.workersPerCompany || [];
     if (!workerData.length) return [];
 
-    // 2. Warm up static caches in parallel with company/user resolution
+    // 2. Warm up static caches in parallel with company/user batches
     const companyIds = workerData.map((w: any) => w.company._id).filter(Boolean);
     const allWorkerUserIdsSet = new Set<string>();
-    workerData.forEach((w: any) => (w.workers || []).forEach((wk: any) => { if (wk.user) allWorkerUserIdsSet.add(wk.user); }));
+    workerData.forEach((w: any) =>
+        (w.workers || []).forEach((wk: any) => { if (wk.user) allWorkerUserIdsSet.add(wk.user); })
+    );
     const allWorkerUserIds = Array.from(allWorkerUserIdsSet);
 
     const companyCalls = companyIds.map(id => ({ procedure: 'company.getById', input: { companyId: id } }));
@@ -330,7 +356,7 @@ export async function fetchUserWorkers(userId: string): Promise<CompanyData[]> {
         ]),
     ]);
 
-    // 3. Collect all rulingParty IDs from the countries of those companies â†’ batch fetch party ethics
+    // 3. Collect rulingParty IDs from all relevant countries -> batch-fetch party ethics
     const partyIds = new Set<string>();
     companyResults.forEach((res: any) => {
         const cd = res?.result?.data;
@@ -342,7 +368,7 @@ export async function fetchUserWorkers(userId: string): Promise<CompanyData[]> {
     });
     await fetchPartyAxesBatch(Array.from(partyIds));
 
-    // -- user map
+    // Build user lookup map
     const userMap: Record<string, any> = {};
     userResults.forEach((res: any, i: number) => {
         if (res?.result?.data) userMap[allWorkerUserIds[i]] = res.result.data;
@@ -422,4 +448,3 @@ export async function fetchMarketPrices() {
         return {};
     }
 }
-

@@ -41,21 +41,10 @@ export async function getPlaygroundData(username?: string) {
 
         return {
             companies: companies.map(c => ({
-                id: c.id,
-                name: c.name,
+                ...c,
+                id: c.id, // Ensure id is mapped correctly if it differs
                 product: c.itemCode,
                 itemCode: c.itemCode,
-                level: c.level,
-                storageLevel: c.storageLevel,
-                employees: c.employees,
-                production: c.production || 0,
-                stock: c.stock || 0,
-                productionBonus: c.productionBonus || 0,
-                bonusDeposit: c.bonusDeposit || 0,
-                bonusSpecialized: c.bonusSpecialized || 0,
-                bonusPolitical: c.bonusPolitical || 0,
-                region: c.region,
-                country: c.country
             })),
             marketPrices: prices
         };

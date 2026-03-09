@@ -25,16 +25,25 @@ export const getAllItems = (): Recipe[] => {
 };
 
 // Production Constants
-// Based on analysis: RawOutput = Energy * Skill * 0.24
-// ItemOutput = RawOutput / WorkPoints
-export const PROD_CONSTANT = 0.24;
-export const ENGINE_WP_PER_LEVEL = 24;
+// Based on WarEra Toolbox analysis: 
+// 1. Worker Energy spent -> WorkPoints: Floor((2.4 * EnergyValue - 5) / 10)
+// 2. Total WorkPoints = WorkPoints * ProductionSkill
+// 3. Output = (TotalWorkPoints * (1 + Bonus/100)) / ItemWorkPoints
+
+export const ENGINE_WP_PER_LEVEL = 23; // Level 1 engine = 100 "Energy" equiv = 23 WorkPoints
 
 export const calculateWorkerProduction = (energy: number, skill: number, fidelity: number) => {
-    // Energy is 0-100
-    // Skill is 1-20+
-    // Fidelity is 0-100 (percent bonus?)
-    // output = (Energy * Skill * CONSTANT) * (1 + Fidelity/100)
-    const base = energy * skill * PROD_CONSTANT;
-    return base * (1 + (fidelity / 100));
+    // energy: typically 30 - 1100+
+    // skill: typical 10 - 50+
+    // fidelity: 0 - 100 (percent)
+
+    // a. Energy conversion to work points per skill point
+    const energyWorkPoints = Math.max(0, Math.floor((2.4 * energy - 5) / 10));
+
+    // b. Skill acts as a direct multiplier to work effort
+    // Note: Skill total (profile.skills.production.total) is expected here.
+    const baseWorkPoints = energyWorkPoints * skill;
+
+    // c. Fidelity is a separate multiplier
+    return baseWorkPoints * (1 + (fidelity / 100));
 };

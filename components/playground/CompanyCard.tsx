@@ -6,7 +6,7 @@ import { CompanyData, Employee } from '@/lib/playground-api';
 import { Building2, TrendingUp, Users, ArrowUpCircle, ChevronUp, ChevronDown } from 'lucide-react';
 import ItemImage from '@/components/ItemImage';
 import EmployeeManager from './EmployeeManager';
-import { getItemRecipe, getAllItems, calculateWorkerProduction, PROD_CONSTANT, ENGINE_WP_PER_LEVEL } from '@/lib/game-data';
+import { getItemRecipe, getAllItems, calculateWorkerProduction, ENGINE_WP_PER_LEVEL } from '@/lib/game-data';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { translations, Language } from '@/lib/i18n';
 
@@ -48,13 +48,39 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
     const recipe = getItemRecipe(currentItemCode);
     const itemWorkPoints = recipe?.work_points || 1; // Default to 1 to avoid NaN
 
-    // 3. Calculate Item Output
+    // 3. Dynamic Production Bonus Calculation (Toolbox Mirror)
+    // The bonus depends on the ITEM being produced. In the playground, 
+    // switching items should recalculate the bonus in real-time.
+    const industrialistItems = useMemo(() => new Set(['ammo', 'lightAmmo', 'heavyAmmo', 'lead', 'steel', 'concrete', 'iron', 'oil', 'petroleum']), []);
+    const agrarianItems = useMemo(() => new Set(['coca', 'grain', 'livestock', 'fish']), []);
+
+    const dynamicBonus = useMemo(() => {
+        const itemCode = (currentItemCode || '').toLowerCase();
+
+        // a. Deposit Bonus (%)
+        const metaDepType = company.metaRegionDepositType?.toLowerCase();
+        const dep = metaDepType === itemCode ? company.metaRegionDepositBonus : 0;
+
+        // b. Specialization Bonus (%) 
+        const metaSpecItem = company.metaCountrySpecializedItem?.toLowerCase();
+        const spec = metaSpecItem === itemCode ? company.metaCountrySpecializedBonus : 0;
+
+        // c. Political Bonus (%) - Industrialist vs Agrarian based on economy axis
+        let pol = 0;
+        const econ = company.metaPartyEconomyAxis || 0;
+        if (econ !== 0) {
+            const tierBonus = Math.abs(econ) >= 2 ? 30 : 10;
+            if (industrialistItems.has(itemCode) && econ > 0) pol = tierBonus;
+            else if (agrarianItems.has(itemCode) && econ < 0) pol = tierBonus;
+        }
+
+        return { dep, spec, pol, total: dep + spec + pol };
+    }, [currentItemCode, company.metaRegionDepositType, company.metaRegionDepositBonus, company.metaCountrySpecializedItem, company.metaCountrySpecializedBonus, company.metaPartyEconomyAxis, industrialistItems, agrarianItems]);
+
+    const { dep: bonusDeposit, spec: bonusSpecialized, pol: bonusPolitical, total: bonus } = dynamicBonus;
+    const hasBonusBreakdown = true; // Now always available via metadata
+
     // Output = (TotalWorkPoints * (1 + Bonus/100)) / ItemWorkPoints
-    const bonus = company.productionBonus || 0;
-    const bonusDeposit = (company as any).bonusDeposit ?? null;
-    const bonusSpecialized = (company as any).bonusSpecialized ?? null;
-    const bonusPolitical = (company as any).bonusPolitical ?? null;
-    const hasBonusBreakdown = bonusDeposit !== null;
     const productionOutput = (totalWorkPoints * (1 + (bonus / 100))) / itemWorkPoints;
 
     // 4. Financials

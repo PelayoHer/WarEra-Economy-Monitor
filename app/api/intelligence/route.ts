@@ -11,15 +11,37 @@ export async function GET() {
     }
 
     try {
-        // 1. Fetch all citizens of Spain
+        // 1. Fetch citizens of Spain (Paginated)
         console.log('[API/INTELLIGENCE] Fetching Spanish citizens');
-        const usersRes = await fetch(`${API_BASE}/trpc/user.getUsersByCountry?batch=1&input=${encodeURIComponent(JSON.stringify({ '0': { countryId: SPAIN_ID } }))}`, {
-            headers: { 'authorization': `Bearer ${TOKEN}`, 'x-fingerprint': FINGERPRINT }
-        });
-        const usersData = await usersRes.json();
-        // The structure we saw was result.data.items[]._id
-        const userItems = usersData[0]?.result?.data?.items || [];
-        const userIds = userItems.map((u: any) => u._id);
+        const userIds: string[] = [];
+        let cursor: string | null = null;
+        let pagesFetched = 0;
+        const MAX_PAGES = 20; // 20 pages * 10/page = 200 users (covers all active Spain)
+
+        while (pagesFetched < MAX_PAGES) {
+            const input: any = { countryId: SPAIN_ID };
+            if (cursor) input.cursor = cursor;
+
+            const usersRes = await fetch(`${API_BASE}/trpc/user.getUsersByCountry?batch=1&input=${encodeURIComponent(JSON.stringify({ '0': input }))}`, {
+                headers: { 'authorization': `Bearer ${TOKEN}`, 'x-fingerprint': FINGERPRINT }
+            });
+
+            if (!usersRes.ok) break;
+
+            const usersData = await usersRes.json();
+            const dataObj = usersData[0]?.result?.data;
+            const items = dataObj?.items || [];
+
+            if (items.length === 0) break;
+
+            items.forEach((u: any) => userIds.push(u._id));
+            cursor = dataObj?.nextCursor;
+            pagesFetched++;
+
+            if (!cursor) break;
+        }
+
+        console.log(`[API/INTELLIGENCE] Found ${userIds.length} total citizens across ${pagesFetched} pages`);
 
         if (userIds.length === 0) {
             return NextResponse.json({ mus: [] });

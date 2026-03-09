@@ -51,6 +51,9 @@ export async function getPlaygroundData(username?: string) {
                 production: c.production || 0,
                 stock: c.stock || 0,
                 productionBonus: c.productionBonus || 0,
+                bonusDeposit: c.bonusDeposit || 0,
+                bonusSpecialized: c.bonusSpecialized || 0,
+                bonusPolitical: c.bonusPolitical || 0,
                 region: c.region,
                 country: c.country
             })),

@@ -51,6 +51,10 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
     // 3. Calculate Item Output
     // Output = (TotalWorkPoints * (1 + Bonus/100)) / ItemWorkPoints
     const bonus = company.productionBonus || 0;
+    const bonusDeposit = (company as any).bonusDeposit ?? null;
+    const bonusSpecialized = (company as any).bonusSpecialized ?? null;
+    const bonusPolitical = (company as any).bonusPolitical ?? null;
+    const hasBonusBreakdown = bonusDeposit !== null;
     const productionOutput = (totalWorkPoints * (1 + (bonus / 100))) / itemWorkPoints;
 
     // 4. Financials
@@ -116,6 +120,7 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
         }
     };
 
+    // bonus is now server-calculated; allow manual override only when breakdown unavailable
     const handleBonusChange = (val: number) => {
         onChange({ ...company, productionBonus: val });
     };
@@ -190,15 +195,46 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                             </div>
                         </div>
                     </div>
-                    {/* Bonus */}
-                    <div className="bg-black/30 p-1.5 rounded border border-white/10 flex flex-col items-center">
+                    {/* Bonus — server-calculated or manual fallback */}
+                    <div className="bg-black/30 p-1.5 rounded border border-white/10 flex flex-col items-center relative group/bonus">
                         <span className="text-gray-500 mb-1 scale-90 uppercase">{t.playground.card.bonus}</span>
-                        <input
-                            type="number"
-                            value={bonus}
-                            onChange={(e) => handleBonusChange(Number(e.target.value))}
-                            className="w-full bg-transparent text-center font-mono text-yellow-500 focus:text-yellow-400 outline-none"
-                        />
+                        {hasBonusBreakdown ? (
+                            <>
+                                <span className="font-mono text-yellow-400 font-bold text-sm cursor-default">
+                                    {bonus}%
+                                </span>
+                                {/* Breakdown tooltip */}
+                                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50
+                                                hidden group-hover/bonus:flex flex-col gap-1
+                                                bg-gray-900 border border-white/15 rounded-lg p-2.5 shadow-xl
+                                                text-[10px] whitespace-nowrap min-w-[150px]">
+                                    <div className="text-gray-400 font-semibold mb-1 uppercase tracking-wider">Bonus Breakdown</div>
+                                    <div className="flex justify-between gap-4">
+                                        <span className="text-gray-400">🏔 Yacimiento</span>
+                                        <span className={`font-mono ${bonusDeposit > 0 ? 'text-green-400' : 'text-gray-600'}`}>{bonusDeposit > 0 ? `+${bonusDeposit}%` : '—'}</span>
+                                    </div>
+                                    <div className="flex justify-between gap-4">
+                                        <span className="text-gray-400">⭐ País espec.</span>
+                                        <span className={`font-mono ${bonusSpecialized > 0 ? 'text-blue-400' : 'text-gray-600'}`}>{bonusSpecialized > 0 ? `+${bonusSpecialized}%` : '—'}</span>
+                                    </div>
+                                    <div className="flex justify-between gap-4">
+                                        <span className="text-gray-400">🏛 Político</span>
+                                        <span className={`font-mono ${bonusPolitical > 0 ? 'text-purple-400' : 'text-gray-600'}`}>{bonusPolitical > 0 ? `+${bonusPolitical}%` : '—'}</span>
+                                    </div>
+                                    <div className="flex justify-between gap-4 border-t border-white/10 pt-1 mt-0.5">
+                                        <span className="text-gray-300 font-bold">Total</span>
+                                        <span className="font-mono text-yellow-400 font-bold">+{bonus}%</span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <input
+                                type="number"
+                                value={bonus}
+                                onChange={(e) => handleBonusChange(Number(e.target.value))}
+                                className="w-full bg-transparent text-center font-mono text-yellow-500 focus:text-yellow-400 outline-none"
+                            />
+                        )}
                     </div>
                 </div>
 

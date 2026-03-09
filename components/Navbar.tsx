@@ -103,11 +103,11 @@ export default function Navbar() {
                         {/* THE SECRET ENTRANCE */}
                         <Link
                             href="/intelligence"
-                            className="p-1 rounded-full text-foreground/5 hover:text-primary/40 transition-colors group/secret relative overflow-hidden flex items-center justify-center translate-x-1"
+                            className="p-1 rounded-full text-foreground/20 hover:text-primary transition-all duration-500 group/secret relative overflow-hidden flex items-center justify-center translate-x-1"
                             title="Classified"
                         >
-                            <Shield className="w-3 h-3 group-hover/secret:scale-110 transition-transform" />
-                            <div className="absolute inset-0 bg-primary/0 group-hover/secret:bg-primary/5 transition-colors" />
+                            <Shield className="w-3.5 h-3.5 group-hover/secret:scale-125 transition-transform" />
+                            <div className="absolute inset-0 bg-primary/0 group-hover/secret:bg-primary/10 transition-colors" />
                         </Link>
                     </div>
                 </div>

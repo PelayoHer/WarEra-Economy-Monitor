@@ -32,9 +32,9 @@ export async function GET() {
 
         for (let i = 0; i < userIds.length; i += CHUNK) {
             const chunk = userIds.slice(i, i + CHUNK);
-            const procs = chunk.map(_ => 'user.getUserLite').join(',');
+            const procs = chunk.map((_: any) => 'user.getUserLite').join(',');
             const input: any = {};
-            chunk.forEach((id, idx) => { input[idx] = { userId: id }; });
+            chunk.forEach((id: any, idx: any) => { input[idx] = { userId: id }; });
 
             const res = await fetch(`${API_BASE}/trpc/${procs}?batch=1&input=${encodeURIComponent(JSON.stringify(input))}`, {
                 headers: { 'authorization': `Bearer ${TOKEN}`, 'x-fingerprint': FINGERPRINT }
@@ -53,15 +53,15 @@ export async function GET() {
         }
 
         // 3. Extract unique MU IDs
-        const muIdsRaw = [...new Set(allUserDetails.map(u => u.mu).filter(Boolean))];
+        const muIdsRaw = [...new Set(allUserDetails.map((u: any) => u.mu).filter(Boolean))];
 
         // 4. Fetch MU details (names/avatars)
         const muDetails: Record<string, any> = {};
         for (let i = 0; i < muIdsRaw.length; i += CHUNK) {
             const chunk = muIdsRaw.slice(i, i + CHUNK);
-            const procs = chunk.map(_ => 'mu.getById').join(',');
+            const procs = chunk.map((_: any) => 'mu.getById').join(',');
             const input: any = {};
-            chunk.forEach((id, idx) => { input[idx] = { muId: id }; });
+            chunk.forEach((id: any, idx: any) => { input[idx] = { muId: id }; });
 
             const res = await fetch(`${API_BASE}/trpc/${procs}?batch=1&input=${encodeURIComponent(JSON.stringify(input))}`, {
                 headers: { 'authorization': `Bearer ${TOKEN}`, 'x-fingerprint': FINGERPRINT }
@@ -87,7 +87,7 @@ export async function GET() {
             members: []
         };
 
-        allUserDetails.forEach(user => {
+        allUserDetails.forEach((user: any) => {
             const mid = user.mu || 'no-mu';
             if (mid !== 'no-mu' && !groupedMus[mid]) {
                 const muInfo = muDetails[mid];

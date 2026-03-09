@@ -82,14 +82,27 @@ export const translations = {
             basket: 'Cesta de Bienes',
             statusTitle: 'Estado',
             basketTitle: 'Variación de Cesta',
-            dailyChange: 'Cambio diario del nivel de precios',
-            basketCount: 'Cesta de 12 bienes',
+            dailyChange: 'Cambio Diario',
+            basketCount: 'Basado en {count} productos del mercado',
             status: {
                 high: 'Inflación Alta',
                 low: 'Deflación',
                 stable: 'Estable'
             }
         },
+
+        // Intelligence
+        intelligenceTitle: 'Inteligencia Nacional',
+        secretTitle: 'Base de Datos Clasificada',
+        muCount: '{count} Miembros',
+        healthStatus: 'Vitalidad',
+        hungerStatus: 'Nutrición',
+        energyStatus: 'Energía',
+        level: 'Nivel',
+        intelRank: 'Rango',
+        lastActive: 'Última activ.',
+        accessDenied: 'Acceso Denegado',
+        enterPassword: 'Introduce la clave de acceso',
 
         // Production Page
         productionTitle: 'Guía de Producción',
@@ -311,14 +324,27 @@ export const translations = {
             basket: 'Basket of Goods',
             statusTitle: 'Status',
             basketTitle: 'Basket Variation',
-            dailyChange: 'Daily price level change',
-            basketCount: '12 goods basket',
+            dailyChange: 'Daily Change',
+            basketCount: 'Based on {count} market products',
             status: {
                 high: 'High Inflation',
                 low: 'Deflation',
                 stable: 'Stable'
             }
         },
+
+        // Intelligence
+        intelligenceTitle: 'National Intelligence',
+        secretTitle: 'Classified Database',
+        muCount: '{count} Members',
+        healthStatus: 'Vitality',
+        hungerStatus: 'Nutrition',
+        energyStatus: 'Energy',
+        level: 'Level',
+        intelRank: 'Rank',
+        lastActive: 'Last active',
+        accessDenied: 'Access Denied',
+        enterPassword: 'Enter access key',
 
         // Production Page
         productionTitle: 'Production Guide',

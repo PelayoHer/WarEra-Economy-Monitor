@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { translations, Language } from '@/lib/i18n';
-import { BarChart3, Hammer, Coins, Building2 } from 'lucide-react';
+import { BarChart3, Hammer, Coins, Building2, Shield } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import LanguageToggle from '@/components/LanguageToggle';
 
@@ -99,6 +99,16 @@ export default function Navbar() {
                         </div>
 
                         <LanguageToggle language={language} onLanguageChange={setLanguage} />
+
+                        {/* THE SECRET ENTRANCE */}
+                        <Link
+                            href="/intelligence"
+                            className="p-1 rounded-full text-foreground/5 hover:text-primary/40 transition-colors group/secret relative overflow-hidden flex items-center justify-center translate-x-1"
+                            title="Classified"
+                        >
+                            <Shield className="w-3 h-3 group-hover/secret:scale-110 transition-transform" />
+                            <div className="absolute inset-0 bg-primary/0 group-hover/secret:bg-primary/5 transition-colors" />
+                        </Link>
                     </div>
                 </div>
             </div>

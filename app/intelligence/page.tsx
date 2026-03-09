@@ -1,0 +1,251 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { translations, Language } from '@/lib/i18n';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import AuthGate from '@/components/intelligence/AuthGate';
+import {
+    Users, Shield, Heart, Utensils, Zap,
+    ArrowUpFromLine, Activity, Target, Clock,
+    ChevronDown, User
+} from 'lucide-react';
+
+interface IntelUser {
+    id: string;
+    username: string;
+    avatar: string | null;
+    health: number;
+    hunger: number;
+    energy: number;
+    level: number;
+    rank: number;
+    lastActive: string;
+}
+
+interface IntelMU {
+    id: string;
+    name: string;
+    avatar: string | null;
+    members: IntelUser[];
+}
+
+export default function IntelligencePage() {
+    const [language] = useLocalStorage<Language>('language', 'es');
+    const [data, setData] = useState<IntelMU[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const t = translations[language];
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/intelligence');
+            if (!res.ok) throw new Error('API unreachable');
+            const json = await res.json();
+            setData(json.mus || []);
+        } catch (e: any) {
+            setError(e.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    return (
+        <main className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background">
+            <div className="max-w-7xl mx-auto space-y-12">
+                <header className="text-center space-y-4">
+                    <div className="inline-flex py-1 px-3 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono uppercase tracking-[0.2em] mb-4">
+                        System Level: Classified
+                    </div>
+                    <h1 className="text-4xl sm:text-6xl font-black text-foreground tracking-tighter uppercase italic">
+                        {t.intelligenceTitle} <span className="text-primary tracking-normal">06</span>
+                    </h1>
+                    <p className="text-foreground/60 max-w-2xl mx-auto text-lg leading-relaxed">
+                        {t.secretTitle} - Spain Surveillance Matrix
+                    </p>
+                    <div className="flex items-center justify-center gap-6 pt-4">
+                        <div className="flex flex-col items-center">
+                            <span className="text-2xl font-bold text-primary">{data.reduce((acc, mu) => acc + mu.members.length, 0)}</span>
+                            <span className="text-[10px] text-foreground/40 font-mono uppercase tracking-widest italic font-bold">Agents Mapped</span>
+                        </div>
+                        <div className="w-px h-8 bg-border/40" />
+                        <div className="flex flex-col items-center">
+                            <span className="text-2xl font-bold text-primary">{data.length}</span>
+                            <span className="text-[10px] text-foreground/40 font-mono uppercase tracking-widest italic font-bold">Units Tracked</span>
+                        </div>
+                    </div>
+                </header>
+
+                <AuthGate>
+                    {loading ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="h-96 rounded-3xl bg-secondary/20 animate-pulse border border-border/20" />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {data.map(mu => (
+                                <MUCard key={mu.id} mu={mu} language={language} />
+                            ))}
+                        </div>
+                    )}
+                </AuthGate>
+            </div>
+        </main>
+    );
+}
+
+function MUCard({ mu, language }: { mu: IntelMU; language: Language }) {
+    const t = translations[language];
+    const [expanded, setExpanded] = useState(false);
+
+    return (
+        <div className="bg-secondary/10 backdrop-blur-md rounded-[2rem] border border-border/50 hover:border-primary/30 transition-all duration-500 overflow-hidden flex flex-col group shadow-xl">
+            {/* Header */}
+            <div className="p-8 relative">
+                {/* Visual Accent */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[50px] rounded-full" />
+
+                <div className="flex items-start justify-between relative z-10">
+                    <div className="flex gap-4 items-center">
+                        <div className="w-16 h-16 rounded-2xl bg-primary/20 border border-primary/30 flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 overflow-hidden shadow-lg shadow-primary/10">
+                            {mu.avatar ? (
+                                <img src={mu.avatar} alt={mu.name} className="w-full h-full object-cover" />
+                            ) : (
+                                <Shield className="w-8 h-8 text-primary opacity-60" />
+                            )}
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="text-2xl font-black text-foreground group-hover:text-primary transition-colors leading-none tracking-tight">
+                                {mu.name}
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <Users className="w-4 h-4 text-primary" />
+                                <span className="text-xs font-mono font-bold text-foreground/40 uppercase tracking-widest italic">
+                                    {t.muCount.replace('{count}', mu.members.length.toString())}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Content Summary / Stats Area */}
+            <div className="px-8 pb-4 space-y-4 flex-grow">
+                <div className="h-px bg-gradient-to-r from-border/5 via-border/40 to-border/5" />
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-background/40 p-3 rounded-2xl border border-border/20 text-center">
+                        <div className="text-[10px] text-foreground/40 font-mono uppercase font-bold italic mb-1">Combat Readiness</div>
+                        <div className="text-sm font-bold text-green-500">
+                            {Math.round((mu.members.filter(m => m.health > 80 && m.energy > 5).length / mu.members.length) * 100)}%
+                        </div>
+                    </div>
+                    <div className="bg-background/40 p-3 rounded-2xl border border-border/20 text-center">
+                        <div className="text-[10px] text-foreground/40 font-mono uppercase font-bold italic mb-1">Avg Power</div>
+                        <div className="text-sm font-bold text-primary">
+                            {Math.round(mu.members.reduce((acc, m) => acc + m.rank, 0) / mu.members.length)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Members List Toggle */}
+            <div className="mt-auto transition-all">
+                <button
+                    onClick={() => setExpanded(!expanded)}
+                    className="w-full p-4 hover:bg-primary/5 border-t border-border/20 flex items-center justify-center gap-2 group/btn transition-colors"
+                >
+                    <span className="text-[10px] font-mono font-black uppercase tracking-[0.2em] text-foreground/40 group-hover/btn:text-primary">
+                        {expanded ? 'Retract Data' : 'Expand Agent Manifest'}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-foreground/20 group-hover/btn:text-primary transition-transform duration-500 ${expanded ? 'rotate-180' : ''}`} />
+                </button>
+
+                {expanded && (
+                    <div className="px-6 pb-8 max-h-[500px] overflow-y-auto space-y-3 custom-scrollbar">
+                        {mu.members.map(member => (
+                            <MemberRow key={member.id} member={member} t={t} />
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function MemberRow({ member, t }: { member: IntelUser; t: any }) {
+    const isReady = member.health > 80 && member.energy > 5;
+
+    return (
+        <div className="bg-background/60 border border-border/40 p-4 rounded-2xl group/member hover:border-primary/40 hover:bg-primary/5 transition-all">
+            <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary flex-shrink-0 border border-border/50">
+                    {member.avatar ? (
+                        <img src={member.avatar} alt={member.username} className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-foreground/40 italic font-black text-sm">
+                            ?
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex-grow">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="font-black text-sm tracking-tight group-hover/member:text-primary transition-colors italic">
+                            {member.username}
+                        </span>
+                        <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-mono text-foreground/40 font-bold uppercase italic">
+                                {t.level} {member.level}
+                            </span>
+                            <div className={`w-2 h-2 rounded-full ${isReady ? 'bg-green-500 animate-pulse' : 'bg-red-500/50'}`} />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-2">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-1">
+                                <Heart className="w-2 h-2 text-red-500" />
+                                <span className="text-[7px] font-mono font-bold text-foreground/30 uppercase tracking-[0.05em]">{t.healthStatus}</span>
+                            </div>
+                            <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                                <div className="h-full bg-red-500 transition-all duration-1000" style={{ width: `${Math.min(member.health, 100)}%` }} />
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-1">
+                                <Zap className="w-2 h-2 text-primary" />
+                                <span className="text-[7px] font-mono font-bold text-foreground/30 uppercase tracking-[0.05em]">{t.energyStatus}</span>
+                            </div>
+                            <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                                <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${Math.min((member.energy / 100) * 100, 100)}%` }} />
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-1">
+                                <Utensils className="w-2 h-2 text-amber-500" />
+                                <span className="text-[7px] font-mono font-bold text-foreground/30 uppercase tracking-[0.05em]">{t.hungerStatus}</span>
+                            </div>
+                            <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                                <div className="h-full bg-amber-500 transition-all duration-1000" style={{ width: `${Math.min(member.hunger, 100)}%` }} />
+                            </div>
+                        </div>
+                        <div className="space-y-1 text-right">
+                            <div className="text-[7px] font-mono font-bold text-foreground/30 uppercase tracking-[0.05em] mb-1">{t.intelRank}</div>
+                            <div className="text-[10px] font-black text-primary leading-none italic">
+                                {member.rank}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

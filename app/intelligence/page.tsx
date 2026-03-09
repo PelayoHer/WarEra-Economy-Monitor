@@ -9,6 +9,7 @@ import {
     ArrowUpFromLine, Activity, Target, Clock,
     ChevronDown, User
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface IntelUser {
     id: string;
@@ -56,42 +57,63 @@ export default function IntelligencePage() {
     }, []);
 
     return (
-        <main className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background">
-            <div className="max-w-7xl mx-auto space-y-12">
+        <main className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background relative overflow-hidden">
+            {/* Simple Dot Pattern Background */}
+            <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+
+            <div className="max-w-7xl mx-auto space-y-12 relative z-10">
                 <header className="text-center space-y-4">
-                    <div className="inline-flex py-1 px-3 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono uppercase tracking-[0.2em] mb-4">
-                        System Level: Classified
-                    </div>
-                    <h1 className="text-4xl sm:text-6xl font-black text-foreground tracking-tighter uppercase italic">
-                        {t.intelligenceTitle} <span className="text-primary tracking-normal">06</span>
-                    </h1>
-                    <p className="text-foreground/60 max-w-2xl mx-auto text-lg leading-relaxed">
+                    <motion.h1
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-4xl sm:text-6xl font-black text-foreground tracking-tighter uppercase italic"
+                    >
+                        {t.intelligenceTitle}
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-foreground/60 max-w-2xl mx-auto text-lg leading-relaxed"
+                    >
                         {t.secretTitle} - Spain Surveillance Matrix
-                    </p>
-                    <div className="flex items-center justify-center gap-6 pt-4">
+                    </motion.p>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="flex items-center justify-center gap-6 pt-4"
+                    >
                         <div className="flex flex-col items-center">
                             <span className="text-2xl font-bold text-primary">{data.reduce((acc, mu) => acc + mu.members.length, 0)}</span>
-                            <span className="text-[10px] text-foreground/40 font-mono uppercase tracking-widest italic font-bold">Agents Mapped</span>
+                            <span className="text-[10px] text-foreground/40 font-mono uppercase tracking-widest italic font-bold">{t.compatriotsLabel}</span>
                         </div>
                         <div className="w-px h-8 bg-border/40" />
                         <div className="flex flex-col items-center">
                             <span className="text-2xl font-bold text-primary">{data.length}</span>
-                            <span className="text-[10px] text-foreground/40 font-mono uppercase tracking-widest italic font-bold">Units Tracked</span>
+                            <span className="text-[10px] text-foreground/40 font-mono uppercase tracking-widest italic font-bold">{t.unitsLabel}</span>
                         </div>
-                    </div>
+                    </motion.div>
                 </header>
 
                 <AuthGate>
                     {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
                             {[1, 2, 3].map(i => (
-                                <div key={i} className="h-96 rounded-3xl bg-secondary/20 animate-pulse border border-border/20" />
+                                <div key={i} className="h-48 rounded-3xl bg-secondary/20 animate-pulse border border-border/20" />
                             ))}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {data.map(mu => (
-                                <MUCard key={mu.id} mu={mu} language={language} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+                            {data.map((mu, index) => (
+                                <motion.div
+                                    key={mu.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                >
+                                    <MUCard mu={mu} language={language} />
+                                </motion.div>
                             ))}
                         </div>
                     )}
@@ -106,7 +128,7 @@ function MUCard({ mu, language }: { mu: IntelMU; language: Language }) {
     const [expanded, setExpanded] = useState(false);
 
     return (
-        <div className="bg-secondary/10 backdrop-blur-md rounded-[2rem] border border-border/50 hover:border-primary/30 transition-all duration-500 overflow-hidden flex flex-col group shadow-xl">
+        <div className="bg-secondary/10 backdrop-blur-md rounded-[2rem] border border-border/50 hover:border-primary/30 transition-all duration-500 overflow-hidden flex flex-col group shadow-xl h-auto self-start">
             {/* Header */}
             <div className="p-8 relative">
                 {/* Visual Accent */}
@@ -127,7 +149,7 @@ function MUCard({ mu, language }: { mu: IntelMU; language: Language }) {
                             </h3>
                             <div className="flex items-center gap-2">
                                 <Users className="w-4 h-4 text-primary" />
-                                <span className="text-xs font-mono font-bold text-foreground/40 uppercase tracking-widest italic">
+                                <span className="text-xs font-mono font-bold text-foreground/40 uppercase tracking-widest italic leading-none">
                                     {t.muCount.replace('{count}', mu.members.length.toString())}
                                 </span>
                             </div>
@@ -136,28 +158,8 @@ function MUCard({ mu, language }: { mu: IntelMU; language: Language }) {
                 </div>
             </div>
 
-            {/* Content Summary / Stats Area */}
-            <div className="px-8 pb-4 space-y-4 flex-grow">
-                <div className="h-px bg-gradient-to-r from-border/5 via-border/40 to-border/5" />
-
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-background/40 p-3 rounded-2xl border border-border/20 text-center">
-                        <div className="text-[10px] text-foreground/40 font-mono uppercase font-bold italic mb-1">Combat Readiness</div>
-                        <div className="text-sm font-bold text-green-500">
-                            {Math.round((mu.members.filter(m => m.health > 80 && m.energy > 5).length / mu.members.length) * 100)}%
-                        </div>
-                    </div>
-                    <div className="bg-background/40 p-3 rounded-2xl border border-border/20 text-center">
-                        <div className="text-[10px] text-foreground/40 font-mono uppercase font-bold italic mb-1">Avg Power</div>
-                        <div className="text-sm font-bold text-primary">
-                            {Math.round(mu.members.reduce((acc, m) => acc + m.rank, 0) / mu.members.length)}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {/* Members List Toggle */}
-            <div className="mt-auto transition-all">
+            <div className="transition-all">
                 <button
                     onClick={() => setExpanded(!expanded)}
                     className="w-full p-4 hover:bg-primary/5 border-t border-border/20 flex items-center justify-center gap-2 group/btn transition-colors"

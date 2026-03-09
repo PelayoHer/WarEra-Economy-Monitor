@@ -59,6 +59,8 @@ export interface CompanyData {
     metaCountrySpecializedItem: string | null;
     metaCountrySpecializedBonus: number;
     metaPartyEconomyAxis: number;
+    metaPartyGovernmentAxis: number;
+    breakRoomLevel: number;
 }
 
 export async function getHelpers() {
@@ -373,6 +375,7 @@ export async function fetchUserWorkers(userId: string): Promise<CompanyData[]> {
 
         const engineLevel = companyDetail.activeUpgradeLevels?.automatedEngine ?? 1;
         const storageLevel = companyDetail.activeUpgradeLevels?.storage ?? 1;
+        const breakRoomLevel = companyDetail.activeUpgradeLevels?.breakRoom ?? 0;
 
         const employees: Employee[] = [];
         (w.workers || []).forEach((worker: any) => {
@@ -381,7 +384,7 @@ export async function fetchUserWorkers(userId: string): Promise<CompanyData[]> {
             const energyLevel = profile.skills?.energy?.level;
             const prodLevel = profile.skills?.production?.level;
 
-            // BUG FIX: Prefer skill.total (includes buffs) over level-based formula
+            // Prefer .total (includes buffs) over level-based base formula
             const skillEnergy = profile.skills?.energy?.total ||
                 (typeof energyLevel === 'number' ? (30 + energyLevel * 10) : 100);
             const skillProd = profile.skills?.production?.total ||
@@ -422,6 +425,8 @@ export async function fetchUserWorkers(userId: string): Promise<CompanyData[]> {
             metaCountrySpecializedItem: country?.specializedItem || null,
             metaCountrySpecializedBonus: country?.strategicResources?.bonuses?.productionPercent || 0,
             metaPartyEconomyAxis: partyAxes?.economy || 0,
+            metaPartyGovernmentAxis: partyAxes?.government || 0,
+            breakRoomLevel,
         });
     });
 

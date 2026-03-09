@@ -30,7 +30,7 @@ export const getAllItems = (): Recipe[] => {
 // 2. Total WorkPoints = WorkPoints * ProductionSkill
 // 3. Output = (TotalWorkPoints * (1 + Bonus/100)) / ItemWorkPoints
 
-export const ENGINE_WP_PER_LEVEL = 23; // Level 1 engine = 100 "Energy" equiv = 23 WorkPoints
+export const ENGINE_WP_PER_LEVEL = 240; // Level 7 = 1680 WP per day @ 1.0x bonus
 
 export const calculateWorkerProduction = (energy: number, skill: number, fidelity: number) => {
     // energy: typically 30 - 1100+

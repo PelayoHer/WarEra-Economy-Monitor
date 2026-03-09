@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -25,32 +24,21 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
     // Formula: Sum(Energy * Production * 0.24 * (1 + Fidelity/100))
     const totalWorkPoints = useMemo(() => {
         const employeeWP = company.employees.reduce((sum, emp) => {
-            // Use imported constant and ensure production value is correct
-            // Note: emp.production is usually the skill *base* (10 + L*3) from API
-            return sum + calculateWorkerProduction(emp.energy, emp.production, emp.fidelity); // 0.24 constant handled in helper
+            return sum + calculateWorkerProduction(emp.energy, emp.production, emp.fidelity);
         }, 0);
 
-        // Automated Engine Production: Level * Constant
+        // Automated Engine Production: Level * Constant (Defined in game-data.ts)
         const engineWP = (company.level || 1) * ENGINE_WP_PER_LEVEL;
 
         return employeeWP + engineWP;
     }, [company.employees, company.level]);
 
     // 2. Identify Product & Recipe
-    // Allow user to treat the company as producing a different item
     const currentItemCode = company.itemCode || 'unknown';
-    // If user changed product locally, we need state? 
-    // Or we update company.itemCode? 
-    // The user said "Possibility to see... if any other resource was produced".
-    // This implies changing the target product for calculation.
-    // Let's update the company.itemCode via onChange so it persists in the session.
-
     const recipe = getItemRecipe(currentItemCode);
-    const itemWorkPoints = recipe?.work_points || 1; // Default to 1 to avoid NaN
+    const itemWorkPoints = recipe?.work_points || 1;
 
     // 3. Dynamic Production Bonus Calculation (Toolbox Mirror)
-    // The bonus depends on the ITEM being produced. In the playground, 
-    // switching items should recalculate the bonus in real-time.
     const industrialistItems = useMemo(() => new Set(['ammo', 'lightAmmo', 'heavyAmmo', 'lead', 'steel', 'concrete', 'iron', 'oil', 'petroleum']), []);
     const agrarianItems = useMemo(() => new Set(['coca', 'grain', 'livestock', 'fish']), []);
 
@@ -77,33 +65,36 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
         return { dep, spec, pol, total: dep + spec + pol };
     }, [currentItemCode, company.metaRegionDepositType, company.metaRegionDepositBonus, company.metaCountrySpecializedItem, company.metaCountrySpecializedBonus, company.metaPartyEconomyAxis, industrialistItems, agrarianItems]);
 
-    const { dep: bonusDeposit, spec: bonusSpecialized, pol: bonusPolitical, total: bonus } = dynamicBonus;
-    const hasBonusBreakdown = true; // Now always available via metadata
+    const { dep: bonusDeposit, spec: bonusSpecialized, pol: bonusPolitical, total: additiveBonusPercent } = dynamicBonus;
 
-    // Output = (TotalWorkPoints * (1 + Bonus/100)) / ItemWorkPoints
-    const productionOutput = (totalWorkPoints * (1 + (bonus / 100))) / itemWorkPoints;
+    // 3.1 Multipliers (found in toolbox Qk)
+    // Imperialism (government axis) is a MULTIPLIER, not an addition
+    const govAxisMap: Record<number, number> = { 2: 1.3, 1: 1.1, 0: 1.0, [-1]: 1.0, [-2]: 1.0 };
+    const axialMultiplier = govAxisMap[company.metaPartyGovernmentAxis] || 1.0;
+
+    // Break Room: Assuming 5% bonus per level (Standard game mechanic)
+    const roomMultiplier = 1 + (company.breakRoomLevel * 0.05);
+
+    const totalMultiplier = (1 + (additiveBonusPercent / 100)) * axialMultiplier * roomMultiplier;
+    const totalBonusDisplay = (totalMultiplier - 1) * 100;
+
+    // Output = (TotalWorkPoints / ItemDifficulty) * Multipliers
+    const productionOutput = (totalWorkPoints / itemWorkPoints) * totalMultiplier;
 
     // 4. Financials
-    // Revenue = Output * Price
     const itemPrice = marketPrices[currentItemCode] || 0;
     const dailyRevenue = productionOutput * itemPrice;
 
     // Costs
-    // a. Wages: Paid per Work Point (Energy Spent effectively)
-    // Formula: Sum(WorkPoints * WageRate)
     const dailyWages = company.employees.reduce((sum, emp) => {
-        // Wage is Paid per Work Point (Energy Spent effectively)
-        // Confirmed by comparison: Wage Rate * Work Points = Daily Wage Cost
         const empWP = calculateWorkerProduction(emp.energy, emp.production, emp.fidelity);
         return sum + (empWP * (emp.wage || 0));
     }, 0);
 
-    // b. Inputs (Recipe Costs)
     let dailyInputCosts = 0;
     if (recipe && recipe.inputs) {
         recipe.inputs.forEach(input => {
             const inputPrice = marketPrices[input.id] || 0;
-            // Qty needed per item * Output
             dailyInputCosts += (input.qty * productionOutput * inputPrice);
         });
     }
@@ -111,25 +102,13 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
     const totalDailyCosts = dailyWages + dailyInputCosts;
     const dailyNet = dailyRevenue - totalDailyCosts;
 
-    // 5. Max Sustainable Wage (Theoretical)
-    // MaxWage = (Revenue - InputCosts) / TotalWP
-    // Revenue = Output * Price
-    // InputCosts = Output * UnitInputCost
-    // Output = WP * (1 + Bonus/100) / Difficulty
-    // MaxWage = [ (WP * (1+Bonus)/Diff) * (Price - UnitCost) ] / WP
-    // MaxWage = ( (1+Bonus)/Diff ) * (Price - UnitCost)
-
-    const unitInputCost = recipe?.inputs?.reduce((acc, input) => {
+    // 5. Max Sustainable Wage
+    const unitInputCost = recipe?.inputs?.reduce((acc: number, input: { id: string, qty: number }) => {
         return acc + (input.qty * (marketPrices[input.id] || 0));
     }, 0) || 0;
 
     const profitPerItem = itemPrice - unitInputCost;
-    const itemsPerWP = (1 + (bonus / 100)) / itemWorkPoints;
-
-    // If profit is negative, Max Wage is effectively 0 (or negative, showing loss)
-    // We display it raw to show how much you lose, or clamp to 0?
-    // Usually investors want to know "Break Even". If negative, it's impossible.
-    const maxSustainableWage = profitPerItem * itemsPerWP;
+    const maxSustainableWage = profitPerItem * (totalMultiplier / itemWorkPoints);
 
     // Handlers
     const handleEmployeesUpdate = (updatedEmployees: Employee[]) => {
@@ -141,12 +120,11 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
             const newLevel = Math.max(1, Math.min(20, company.level + delta));
             onChange({ ...company, level: newLevel });
         } else {
-            const newLevel = Math.max(1, Math.min(20, (company.storageLevel || 1) + delta)); // Default storageLevel to 1 if undefined
+            const newLevel = Math.max(1, Math.min(20, (company.storageLevel || 1) + delta));
             onChange({ ...company, storageLevel: newLevel });
         }
     };
 
-    // bonus is now server-calculated; allow manual override only when breakdown unavailable
     const handleBonusChange = (val: number) => {
         onChange({ ...company, productionBonus: val });
     };
@@ -157,15 +135,20 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
 
     const allItems = getAllItems();
 
+    const BonusRow = ({ label, value, colorClass = 'text-green-400' }: { label: string, value: number, colorClass?: string }) => (
+        <div className="flex justify-between gap-4">
+            <span className="text-gray-400">{label}</span>
+            <span className={`font-mono ${value > 0 ? colorClass : 'text-gray-600'}`}>
+                {value > 0 ? `+${value}%` : '—'}
+            </span>
+        </div>
+    );
+
     return (
         <div className="backdrop-blur-md bg-gray-900/60 border border-white/10 rounded-xl overflow-hidden flex flex-col shadow-lg transition-all hover:shadow-blue-500/20 hover:border-blue-500/30 group/card relative">
-            {/* Decorative Corner (HUD Style) */}
             <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-white/5 rounded-tr-xl group-hover:border-blue-500/50 transition-colors pointer-events-none" />
 
-            {/* Header / Top Section */}
             <div className="p-3 bg-white/5 border-b border-white/10 flex flex-col gap-3 relative z-10">
-
-                {/* ID & Region */}
                 <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
                         <div className="w-10 h-10 bg-black/40 rounded-lg flex items-center justify-center border border-white/10 shadow-inner">
@@ -183,10 +166,8 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                             </div>
                         </div>
                     </div>
-                    {/* Delete button usually here in ref app, skipping for playground */}
                 </div>
 
-                {/* Product Dropdown */}
                 <select
                     value={currentItemCode}
                     onChange={handleProductChange}
@@ -197,9 +178,7 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                     ))}
                 </select>
 
-                {/* Upgrades (Engine / Storage / Bonus) */}
                 <div className="grid grid-cols-3 gap-2 text-xs">
-                    {/* Engine */}
                     <div className="bg-black/30 p-1.5 rounded border border-white/10 flex flex-col items-center">
                         <span className="text-gray-500 mb-1 scale-90 uppercase">{t.playground.card.engine}</span>
                         <div className="flex items-center gap-1">
@@ -210,7 +189,6 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                             </div>
                         </div>
                     </div>
-                    {/* Storage */}
                     <div className="bg-black/30 p-1.5 rounded border border-white/10 flex flex-col items-center">
                         <span className="text-gray-500 mb-1 scale-90 uppercase">{t.playground.card.storage}</span>
                         <div className="flex items-center gap-1">
@@ -221,63 +199,53 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                             </div>
                         </div>
                     </div>
-                    {/* Bonus — server-calculated or manual fallback */}
                     <div className="bg-black/30 p-1.5 rounded border border-white/10 flex flex-col items-center relative group/bonus">
                         <span className="text-gray-500 mb-1 scale-90 uppercase">{t.playground.card.bonus}</span>
-                        {hasBonusBreakdown ? (
-                            <>
-                                <span className="font-mono text-yellow-400 font-bold text-sm cursor-default">
-                                    {bonus}%
-                                </span>
-                                {/* Breakdown tooltip */}
-                                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50
-                                                hidden group-hover/bonus:flex flex-col gap-1
-                                                bg-gray-900 border border-white/15 rounded-lg p-2.5 shadow-xl
-                                                text-[10px] whitespace-nowrap min-w-[150px]">
-                                    <div className="text-gray-400 font-semibold mb-1 uppercase tracking-wider">Bonus Breakdown</div>
-                                    <div className="flex justify-between gap-4">
-                                        <span className="text-gray-400">🏔 Yacimiento</span>
-                                        <span className={`font-mono ${bonusDeposit > 0 ? 'text-green-400' : 'text-gray-600'}`}>{bonusDeposit > 0 ? `+${bonusDeposit}%` : '—'}</span>
-                                    </div>
-                                    <div className="flex justify-between gap-4">
-                                        <span className="text-gray-400">⭐ País espec.</span>
-                                        <span className={`font-mono ${bonusSpecialized > 0 ? 'text-blue-400' : 'text-gray-600'}`}>{bonusSpecialized > 0 ? `+${bonusSpecialized}%` : '—'}</span>
-                                    </div>
-                                    <div className="flex justify-between gap-4">
-                                        <span className="text-gray-400">🏛 Político</span>
-                                        <span className={`font-mono ${bonusPolitical > 0 ? 'text-purple-400' : 'text-gray-600'}`}>{bonusPolitical > 0 ? `+${bonusPolitical}%` : '—'}</span>
-                                    </div>
-                                    <div className="flex justify-between gap-4 border-t border-white/10 pt-1 mt-0.5">
-                                        <span className="text-gray-300 font-bold">Total</span>
-                                        <span className="font-mono text-yellow-400 font-bold">+{bonus}%</span>
-                                    </div>
+                        <span className="font-mono text-yellow-400 font-bold text-sm cursor-default">
+                            {totalBonusDisplay.toFixed(1)}%
+                        </span>
+                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50
+                                        hidden group-hover/bonus:flex flex-col gap-1
+                                        bg-gray-900 border border-white/15 rounded-lg p-2.5 shadow-xl
+                                        text-[10px] whitespace-nowrap min-w-[170px]">
+                            <div className="text-gray-400 font-semibold mb-1 uppercase tracking-wider text-center border-b border-white/5 pb-1">Desglose Multiplicativo</div>
+                            <BonusRow label="🏔 Yacimiento" value={bonusDeposit} colorClass="text-green-400" />
+                            <BonusRow label="⭐ País espec." value={bonusSpecialized} colorClass="text-blue-400" />
+                            <BonusRow label="🏛 Político (Ec.)" value={bonusPolitical} colorClass="text-purple-400" />
+                            <div className="flex justify-between items-center pt-1 border-t border-white/5 text-blue-400">
+                                <span>Base Aditiva</span>
+                                <span>+{(additiveBonusPercent).toFixed(1)}%</span>
+                            </div>
+                            {axialMultiplier !== 1 && (
+                                <div className="flex justify-between items-center text-amber-400">
+                                    <span>👑 Imperialismo</span>
+                                    <span>x{axialMultiplier.toFixed(1)}</span>
                                 </div>
-                            </>
-                        ) : (
-                            <input
-                                type="number"
-                                value={bonus}
-                                onChange={(e) => handleBonusChange(Number(e.target.value))}
-                                className="w-full bg-transparent text-center font-mono text-yellow-500 focus:text-yellow-400 outline-none"
-                            />
-                        )}
+                            )}
+                            {company.breakRoomLevel > 0 && (
+                                <div className="flex justify-between items-center text-emerald-400">
+                                    <span>☕ Break Room</span>
+                                    <span>x{roomMultiplier.toFixed(2)}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between items-center pt-1 border-t border-white/10 mt-0.5 text-yellow-400 font-bold">
+                                <span className="uppercase">Total Final</span>
+                                <span>+{totalBonusDisplay.toFixed(1)}%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Storage Bar */}
                 <div className="space-y-1">
                     {(() => {
                         const capacity = (company.storageLevel || 1) * 200;
                         const currentStock = Math.round(company.stock || 0);
                         const progress = Math.min(100, (currentStock / capacity) * 100);
-
-                        // Time to Full
                         let timeString = '--';
                         if (productionOutput > 0 && currentStock < capacity) {
                             const remaining = capacity - currentStock;
                             const hourlyProd = productionOutput / 24;
                             const hours = remaining / hourlyProd;
-
                             if (hours < 24) {
                                 const h = Math.floor(hours);
                                 const m = Math.floor((hours - h) * 60);
@@ -290,7 +258,6 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                         } else if (currentStock >= capacity) {
                             timeString = t.playground.card.full;
                         }
-
                         return (
                             <>
                                 <div className="flex justify-between text-[10px] text-gray-500">
@@ -305,11 +272,10 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                     })()}
                 </div>
 
-                {/* Max Sustain Wage */}
                 <div className="mt-2 p-2 bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-lg flex justify-between items-center shadow-sm">
                     <div className="flex items-center gap-1.5">
                         <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
-                        <span className="text-[10px] uppercase font-bold text-purple-300 tracking-wider">{t.playground.card.maxWage}</span>
+                        <span className="text-[10px] uppercase font-bold text-purple-300 tracking-wider text-xs">{t.playground.card.maxWage}</span>
                     </div>
                     <span className={`font-mono font-bold text-sm ${maxSustainableWage >= 0 ? 'text-purple-200' : 'text-red-400'}`}>
                         {maxSustainableWage.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] text-purple-400/50">G</span>
@@ -317,7 +283,6 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                 </div>
             </div>
 
-            {/* Employee Manager */}
             <div className="p-3 bg-gray-950/30">
                 <EmployeeManager
                     employees={company.employees}
@@ -325,7 +290,6 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                 />
             </div>
 
-            {/* Financial Summary Footer */}
             <div className="mt-auto bg-gray-950/60 border-t border-white/10 p-3 grid grid-cols-2 gap-y-2 gap-x-4 text-xs font-mono">
                 <div className="flex justify-between">
                     <span className="text-gray-500">{t.playground.card.yield}</span>
@@ -340,7 +304,7 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
                     <span className="font-mono text-red-400">-{totalDailyCosts.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between border-t border-gray-800 pt-1">
-                    <span className="text-gray-400 font-bold">{t.playground.card.net}</span>
+                    <span className="text-gray-400 font-bold text-xs">{t.playground.card.net}</span>
                     <span className={`font-mono font-bold ${dailyNet >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {dailyNet.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>

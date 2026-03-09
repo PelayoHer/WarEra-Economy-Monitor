@@ -63,19 +63,17 @@ export async function GET() {
         });
 
         if (results.length === 0) {
-            return NextResponse.json({ rate: 0, basketSize: 0, topInflated: [], topDeflated: [] });
+            return NextResponse.json({ rate: 0, items: [] });
         }
 
         const avgRate = results.reduce((acc, r) => acc + r.change, 0) / results.length;
-        const topInflated = [...results].sort((a, b) => b.change - a.change).slice(0, 5);
-        const topDeflated = [...results].sort((a, b) => a.change - b.change).slice(0, 5);
+        // Sort by magnitude of change or just alphabetical? Sort by change desc looks better.
+        const sortedItems = [...results].sort((a, b) => b.change - a.change);
 
         return NextResponse.json({
             rate: avgRate,
             status: avgRate > 5 ? 'high' : avgRate < -2 ? 'low' : 'stable',
-            basketSize: results.length,
-            topInflated,
-            topDeflated
+            items: sortedItems
         });
 
     } catch (e: any) {

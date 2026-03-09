@@ -82,6 +82,8 @@ export const translations = {
             basket: 'Cesta de Bienes',
             statusTitle: 'Estado',
             basketTitle: 'Variación de Cesta',
+            dailyChange: 'Cambio diario del nivel de precios',
+            basketCount: 'Cesta de 12 bienes',
             status: {
                 high: 'Inflación Alta',
                 low: 'Deflación',
@@ -309,6 +311,8 @@ export const translations = {
             basket: 'Basket of Goods',
             statusTitle: 'Status',
             basketTitle: 'Basket Variation',
+            dailyChange: 'Daily price level change',
+            basketCount: '12 goods basket',
             status: {
                 high: 'High Inflation',
                 low: 'Deflation',

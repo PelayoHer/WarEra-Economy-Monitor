@@ -70,12 +70,12 @@ export default function CompanyCard({ company, index, onChange, marketPrices }: 
     // 3.1 Multipliers (found in toolbox Qk)
     // Imperialism (government axis) is a MULTIPLIER, not an addition
     const govAxisMap: Record<number, number> = { 2: 1.3, 1: 1.1, 0: 1.0, [-1]: 1.0, [-2]: 1.0 };
-    const axialMultiplier = govAxisMap[company.metaPartyGovernmentAxis] || 1.0;
+    const axialMultiplier = govAxisMap[company.metaPartyGovernmentAxis ?? 0] || 1.0;
 
     // Break Room: Assuming 5% bonus per level (Standard game mechanic)
-    const roomMultiplier = 1 + (company.breakRoomLevel * 0.05);
+    const roomMultiplier = 1 + ((company.breakRoomLevel || 0) * 0.05);
 
-    const totalMultiplier = (1 + (additiveBonusPercent / 100)) * axialMultiplier * roomMultiplier;
+    const totalMultiplier = (1 + ((additiveBonusPercent || 0) / 100)) * axialMultiplier * roomMultiplier;
     const totalBonusDisplay = (totalMultiplier - 1) * 100;
 
     // Output = (TotalWorkPoints / ItemDifficulty) * Multipliers

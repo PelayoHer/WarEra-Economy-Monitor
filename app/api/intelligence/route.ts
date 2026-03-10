@@ -132,8 +132,17 @@ export async function GET() {
                 rank: user.militaryRank || 0,
                 lastActive: user.dates?.lastConnectionAt,
                 // Check for buffs/effects that might indicate pill usage
-                // In WarEra, buffs are often in user.effects or currentActiveItems
-                hasPill: user.effects?.some((e: any) => e.type === 'damage_buff' || e.itemCode === 'cocain') || false
+                hasPill: user.effects?.some((e: any) => e.type === 'damage_buff' || e.itemCode === 'cocain') || (user.skills?.attack?.buffsPercent > 0),
+
+                // Military / Offensive stats
+                attack: user.skills?.attack?.total || 0,
+                critChance: user.skills?.criticalChance?.total || 0,
+                critDamage: user.skills?.criticalDamages?.total || 100,
+                armor: user.skills?.armor?.total || 0,
+                precision: user.skills?.precision?.total || 0,
+                dodge: user.skills?.dodge?.total || 0,
+                totalDamage: user.stats?.damagesCount || 0,
+                weeklyDamage: user.rankings?.weeklyUserDamages?.value || 0
             });
         });
 

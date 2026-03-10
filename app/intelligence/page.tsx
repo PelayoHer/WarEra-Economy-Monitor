@@ -6,7 +6,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import AuthGate from '@/components/intelligence/AuthGate';
 import {
     Users, Shield, Heart, Utensils, Zap,
-    Activity, ChevronDown, User
+    Activity, ChevronDown, User, Target
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -21,6 +21,14 @@ interface IntelUser {
     rank: number;
     lastActive: string;
     hasPill?: boolean;
+    attack: number;
+    critChance: number;
+    critDamage: number;
+    armor: number;
+    precision: number;
+    dodge: number;
+    totalDamage: number;
+    weeklyDamage: number;
 }
 
 interface IntelMU {
@@ -108,39 +116,41 @@ export default function IntelligencePage() {
                             ))}
                         </div>
                     ) : (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start"
-                        >
-                            {data.map((mu, index) => (
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start"
+                            >
+                                {data.map((mu, index) => (
+                                    <motion.div
+                                        key={mu.id}
+                                        initial={{ opacity: 0, y: 30 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.1, type: 'spring', damping: 20 }}
+                                    >
+                                        <MUCard mu={mu} language={language} />
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+
+                            {!loading && (
                                 <motion.div
-                                    key={mu.id}
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.1, type: 'spring', damping: 20 }}
+                                    transition={{ delay: 0.8 }}
+                                    className="space-y-8 pt-20"
                                 >
-                                    <MUCard mu={mu} language={language} />
+                                    <div className="flex flex-col items-center gap-4 text-center">
+                                        <h2 className="text-4xl font-black text-foreground uppercase italic tracking-tighter drop-shadow-lg">
+                                            Registro de Despliegue Nacional
+                                        </h2>
+                                        <p className="text-foreground/40 text-sm font-mono uppercase tracking-[0.2em]">Resumen operativo de fuerzas activas</p>
+                                    </div>
+                                    <CombatSummaryTable data={data} t={t} />
                                 </motion.div>
-                            ))}
-                        </motion.div>
-                    )}
-
-                    {!loading && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.8 }}
-                            className="space-y-8 pt-20"
-                        >
-                            <div className="flex flex-col items-center gap-4 text-center">
-                                <h2 className="text-4xl font-black text-foreground uppercase italic tracking-tighter drop-shadow-lg">
-                                    Registro de Despliegue Nacional
-                                </h2>
-                                <p className="text-foreground/40 text-sm font-mono uppercase tracking-[0.2em]">Resumen operativo de fuerzas activas</p>
-                            </div>
-                            <CombatSummaryTable data={data} t={t} />
-                        </motion.div>
+                            )}
+                        </>
                     )}
                 </AuthGate>
             </div>
@@ -165,7 +175,9 @@ function CombatSummaryTable({ data, t }: { data: IntelMU[]; t: any }) {
                             <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Unidad</th>
                             <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.level}</th>
                             <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.intelRank}</th>
+                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Ataque</th>
                             <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.healthStatus}</th>
+                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Daño Sem.</th>
                             <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Estado</th>
                         </tr>
                     </thead>
@@ -179,7 +191,7 @@ function CombatSummaryTable({ data, t }: { data: IntelMU[]; t: any }) {
                                     </td>
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary border border-border/50 flex-shrink-0">
+                                            <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary border border-border/50 flex-shrink-0 group-hover:border-primary/50 transition-colors">
                                                 {member.avatar ? (
                                                     <img src={member.avatar} alt={member.username} className="w-full h-full object-cover" />
                                                 ) : (
@@ -214,6 +226,12 @@ function CombatSummaryTable({ data, t }: { data: IntelMU[]; t: any }) {
                                         </span>
                                     </td>
                                     <td className="px-8 py-5">
+                                        <div className="flex flex-col">
+                                            <span className="font-mono font-black text-primary leading-none">{Math.round(member.attack)}</span>
+                                            <span className="text-[8px] font-mono text-foreground/30 uppercase mt-1">ATK</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5">
                                         <div className="flex flex-col gap-1.5 min-w-[100px]">
                                             <div className="flex justify-between text-[10px] font-mono font-black">
                                                 <span className={member.health < 50 ? 'text-red-500' : 'text-foreground/40'}>{Math.round(member.health)}%</span>
@@ -227,15 +245,20 @@ function CombatSummaryTable({ data, t }: { data: IntelMU[]; t: any }) {
                                         </div>
                                     </td>
                                     <td className="px-8 py-5">
+                                        <div className="flex flex-col">
+                                            <span className="font-mono font-black text-primary leading-none italic">{member.weeklyDamage.toLocaleString()}</span>
+                                            <span className="text-[8px] font-mono text-foreground/30 uppercase mt-1">WEEKLY</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
-                                            {member.hasPill && (
+                                            {member.hasPill ? (
                                                 <div className="flex items-center gap-1 text-[9px] font-mono font-black text-primary bg-primary/10 px-2 py-1 rounded-full border border-primary/20 animate-pulse">
                                                     <Activity className="w-3 h-3" />
                                                     PILL
                                                 </div>
-                                            )}
-                                            {isReady && (
-                                                <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" title="COMBAT READY" />
+                                            ) : (
+                                                <div className="text-[9px] font-mono font-black text-foreground/10 uppercase italic">OFF</div>
                                             )}
                                         </div>
                                     </td>
@@ -371,25 +394,62 @@ function MemberRow({ member, t }: { member: IntelUser; t: any }) {
                         </div>
                     </div>
 
-                    {/* Footer Stats: Rank, Energy, Hunger */}
-                    <div className="grid grid-cols-3 gap-6 pt-3 border-t border-border/10">
-                        <div className="space-y-1">
-                            <span className="text-[8px] font-mono font-black text-foreground/20 uppercase tracking-widest block">{t.intelRank}</span>
-                            <span className="text-xl font-black text-primary italic leading-none block">{member.rank}</span>
+                    {/* Secondary Stats Strip */}
+                    <div className="grid grid-cols-4 gap-3 items-center pt-3 border-t border-border/10">
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-mono font-black text-foreground/30 uppercase tracking-widest mb-1 leading-none">{t.intelRank}</span>
+                            <div className="text-lg font-black text-primary italic leading-none block uppercase">
+                                <span className="opacity-30 text-[10px] mr-1">R:</span>{member.rank}
+                            </div>
                         </div>
-                        <div className="space-y-1">
-                            <span className="text-[8px] font-mono font-black text-foreground/20 uppercase tracking-widest block">{t.energyStatus}</span>
-                            <div className="flex items-center gap-1.5">
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-mono font-black text-foreground/30 uppercase tracking-widest mb-1 leading-none">{t.energyStatus}</span>
+                            <div className="flex items-center gap-2">
                                 <Zap className="w-3.5 h-3.5 text-primary opacity-60" />
-                                <span className="text-sm font-black italic">{Math.round(member.energy)}%</span>
+                                <span className="text-sm font-mono font-black text-primary italic uppercase">{Math.round(member.energy)}%</span>
                             </div>
                         </div>
-                        <div className="space-y-1">
-                            <span className="text-[8px] font-mono font-black text-foreground/20 uppercase tracking-widest block">{t.hungerStatus}</span>
-                            <div className="flex items-center gap-1.5">
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-mono font-black text-foreground/30 uppercase tracking-widest mb-1 leading-none">{t.hungerStatus}</span>
+                            <div className="flex items-center gap-2">
                                 <Utensils className="w-3.5 h-3.5 text-amber-500 opacity-60" />
-                                <span className="text-sm font-black italic">{Math.round(member.hunger)}</span>
+                                <span className="text-sm font-mono font-black text-amber-500 italic uppercase">{Math.round(member.hunger)}</span>
                             </div>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-mono font-black text-foreground/30 uppercase tracking-widest mb-1 leading-none">Attack</span>
+                            <div className="flex items-center gap-2">
+                                <Target className="w-3.5 h-3.5 text-red-500 opacity-60" />
+                                <span className="text-sm font-mono font-black text-red-500 italic uppercase">{Math.round(member.attack)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Full Military Specs Grid */}
+                    <div className="grid grid-cols-3 gap-2 pt-3">
+                        <div className="bg-secondary/30 rounded-lg p-2 border border-border/10">
+                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">CRIT%</span>
+                            <span className="text-xs font-black text-primary italic">{member.critChance}%</span>
+                        </div>
+                        <div className="bg-secondary/30 rounded-lg p-2 border border-border/10">
+                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">C_DMG</span>
+                            <span className="text-xs font-black text-primary italic">{member.critDamage}%</span>
+                        </div>
+                        <div className="bg-secondary/30 rounded-lg p-2 border border-border/10">
+                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">ARMOR</span>
+                            <span className="text-xs font-black text-amber-500 italic">{member.armor}</span>
+                        </div>
+                        <div className="bg-secondary/30 rounded-lg p-2 border border-border/10">
+                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">PREC</span>
+                            <span className="text-xs font-black text-primary italic">{member.precision}</span>
+                        </div>
+                        <div className="bg-secondary/30 rounded-lg p-2 border border-border/10">
+                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">DODGE</span>
+                            <span className="text-xs font-black text-primary italic">{member.dodge}</span>
+                        </div>
+                        <div className="bg-secondary/30 rounded-lg p-2 border border-primary/20">
+                            <span className="text-[8px] font-mono text-primary/40 block mb-1 uppercase tracking-tighter">W_Dmg</span>
+                            <span className="text-xs font-black text-primary italic">{member.weeklyDamage.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>

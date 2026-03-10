@@ -377,7 +377,7 @@ function MUCard({ mu, language }: { mu: IntelMU; language: Language }) {
                     className="w-full py-5 px-10 hover:bg-primary/10 border-t border-border/10 flex items-center justify-between group/btn transition-all group-hover:bg-primary/5"
                 >
                     <span className="text-sm font-black uppercase tracking-[0.3em] text-foreground/30 group-hover/btn:text-primary transition-colors italic">
-                        {expanded ? (language === 'es' ? 'Ocultar Manifiesto' : 'Hide Manifest') : (language === 'es' ? 'Analizar Miembros' : 'Analyze Members')}
+                        {expanded ? (language === 'es' ? 'Ocultar' : 'Hide') : (language === 'es' ? 'Analizar' : 'Analyze')}
                     </span>
                     <ChevronDown className={`w-6 h-6 text-foreground/20 group-hover/btn:text-primary transition-all duration-500 ${expanded ? 'rotate-180' : 'group-hover:translate-y-1'}`} />
                 </button>

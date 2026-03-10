@@ -21,6 +21,7 @@ interface IntelUser {
     level: number;
     rank: number;
     lastActive: string;
+    hasPill?: boolean;
 }
 
 interface IntelMU {

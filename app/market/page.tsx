@@ -208,8 +208,8 @@ export default function MarketPage() {
                                             </div>
                                             <div className="flex flex-col items-end">
                                                 <span className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black italic text-right">Volumen 24h</span>
-                                                <div className="text-sm font-mono font-bold text-slate-400 mt-1">
-                                                    {mp?.volume24h ? (mp.volume24h / 1000).toFixed(1) + 'K' : '0.0K'} <span className="text-[8px] opacity-30 italic font-mono uppercase tracking-tighter">QTY</span>
+                                                <div className="text-sm font-mono font-bold text-slate-400 mt-1 flex items-center gap-1">
+                                                    {mp?.volume24h ? (mp.volume24h / 1000).toFixed(1) + 'K' : '0.0K'} <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                                                 </div>
                                             </div>
                                         </div>

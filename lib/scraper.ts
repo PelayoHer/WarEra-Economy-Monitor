@@ -115,7 +115,7 @@ async function scrapePrice(itemId: string, token: string): Promise<{ price: numb
 
         const history = itemResult.values || [];
         const price = itemResult.currentValue || itemResult.lastPrice || 0;
-        const volume24h = history.length > 0 ? history[history.length - 1].totalQuantity : 0;
+        const volume24h = history.length > 0 ? history[history.length - 1].totalValue : 0;
 
         let change24h = 0;
         if (history.length >= 2) {

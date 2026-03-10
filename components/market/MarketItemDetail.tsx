@@ -79,19 +79,29 @@ export default function MarketItemDetail({ item, price, onClose, t, language }: 
                         <div className="lg:col-span-2 space-y-8">
                             {/* Summary Cards */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div className="bg-white/5 border border-white/5 p-4 rounded-2xl">
+                                <div className="bg-white/5 border border-white/5 p-4 rounded-2xl flex flex-col justify-between">
                                     <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest block mb-1">Precio Actual</span>
-                                    <span className="text-2xl font-mono font-black text-white">{avgPrice.toFixed(4)}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-2xl font-mono font-black text-white">{avgPrice.toFixed(4)}</span>
+                                        <div className="w-5 h-5 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]">
+                                            <div className="w-2 h-2 rounded-full bg-amber-500" />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="bg-white/5 border border-white/5 p-4 rounded-2xl">
-                                    <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest block mb-1">Volumen 24h</span>
-                                    <span className="text-2xl font-mono font-black text-white">{volume.toLocaleString()}</span>
+                                <div className="bg-white/5 border border-white/5 p-4 rounded-2xl flex flex-col justify-between">
+                                    <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest block mb-1">Volumen 24h (Dinero)</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-2xl font-mono font-black text-white">{volume >= 1000 ? (volume / 1000).toFixed(1) + 'K' : volume.toFixed(2)}</span>
+                                        <div className="w-5 h-5 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                                            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="bg-white/5 border border-white/5 p-4 rounded-2xl">
+                                <div className="bg-white/5 border border-white/5 p-4 rounded-2xl flex flex-col justify-between">
                                     <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest block mb-1">Spread Est.</span>
                                     <span className="text-2xl font-mono font-black text-slate-400">{(avgPrice * 0.02).toFixed(4)}</span>
                                 </div>
-                                <div className="bg-white/5 border border-white/5 p-4 rounded-2xl">
+                                <div className="bg-white/5 border border-white/5 p-4 rounded-2xl flex flex-col justify-between">
                                     <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest block mb-1">Tendencia</span>
                                     <div className="flex items-center gap-2 text-xl font-mono font-black">
                                         {change24h >= 0 ? <TrendingUp className="text-success w-5 h-5" /> : <TrendingDown className="text-red-500 w-5 h-5" />}

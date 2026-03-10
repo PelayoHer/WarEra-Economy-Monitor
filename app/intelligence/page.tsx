@@ -73,14 +73,6 @@ export default function IntelligencePage() {
 
             <div className="max-w-7xl mx-auto space-y-12 relative z-10">
                 <header className="text-center space-y-6">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md mb-4 shadow-[0_0_15px_rgba(var(--primary),0.1)]"
-                    >
-                        <Shield className="w-3 h-3" />
-                        Tactical National Intelligence
-                    </motion.div>
 
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}

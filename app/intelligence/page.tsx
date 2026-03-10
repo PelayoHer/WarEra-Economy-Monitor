@@ -399,7 +399,7 @@ function MemberRow({ member, t }: { member: IntelUser; t: any }) {
                         <div className="flex flex-col">
                             <span className="text-[9px] font-mono font-black text-foreground/30 uppercase tracking-widest mb-1 leading-none">{t.intelRank}</span>
                             <div className="text-lg font-black text-primary italic leading-none block uppercase">
-                                <span className="opacity-30 text-[10px] mr-1">R:</span>{member.rank}
+                                <span className="opacity-30 text-[10px] mr-1">RAN:</span>{member.rank}
                             </div>
                         </div>
                         <div className="flex flex-col">
@@ -417,7 +417,7 @@ function MemberRow({ member, t }: { member: IntelUser; t: any }) {
                             </div>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[9px] font-mono font-black text-foreground/30 uppercase tracking-widest mb-1 leading-none">Attack</span>
+                            <span className="text-[9px] font-mono font-black text-foreground/30 uppercase tracking-widest mb-1 leading-none">ATAQUE</span>
                             <div className="flex items-center gap-2">
                                 <Target className="w-3.5 h-3.5 text-red-500 opacity-60" />
                                 <span className="text-sm font-mono font-black text-red-500 italic uppercase">{Math.round(member.attack)}</span>
@@ -428,27 +428,27 @@ function MemberRow({ member, t }: { member: IntelUser; t: any }) {
                     {/* Full Military Specs Grid */}
                     <div className="grid grid-cols-3 gap-2 pt-3">
                         <div className="bg-secondary/30 rounded-lg p-2 border border-border/10">
-                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">CRIT%</span>
+                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">% CRIT.</span>
                             <span className="text-xs font-black text-primary italic">{member.critChance}%</span>
                         </div>
                         <div className="bg-secondary/30 rounded-lg p-2 border border-border/10">
-                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">C_DMG</span>
+                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">DAÑO CRIT.</span>
                             <span className="text-xs font-black text-primary italic">{member.critDamage}%</span>
                         </div>
                         <div className="bg-secondary/30 rounded-lg p-2 border border-border/10">
-                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">ARMOR</span>
+                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">ARMADURA</span>
                             <span className="text-xs font-black text-amber-500 italic">{member.armor}</span>
                         </div>
                         <div className="bg-secondary/30 rounded-lg p-2 border border-border/10">
-                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">PREC</span>
+                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">PRECISIÓN</span>
                             <span className="text-xs font-black text-primary italic">{member.precision}</span>
                         </div>
                         <div className="bg-secondary/30 rounded-lg p-2 border border-border/10">
-                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">DODGE</span>
+                            <span className="text-[8px] font-mono text-foreground/30 block mb-1">EVASIÓN</span>
                             <span className="text-xs font-black text-primary italic">{member.dodge}</span>
                         </div>
                         <div className="bg-secondary/30 rounded-lg p-2 border border-primary/20">
-                            <span className="text-[8px] font-mono text-primary/40 block mb-1 uppercase tracking-tighter">W_Dmg</span>
+                            <span className="text-[8px] font-mono text-primary/40 block mb-1 uppercase tracking-tighter">DAÑO SEM.</span>
                             <span className="text-xs font-black text-primary italic">{member.weeklyDamage.toLocaleString()}</span>
                         </div>
                     </div>

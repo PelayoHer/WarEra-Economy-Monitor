@@ -130,7 +130,10 @@ export async function GET() {
                 energy: user.skills?.energy?.currentBarValue || 0,
                 level: user.leveling?.level || 0,
                 rank: user.militaryRank || 0,
-                lastActive: user.dates?.lastConnectionAt
+                lastActive: user.dates?.lastConnectionAt,
+                // Check for buffs/effects that might indicate pill usage
+                // In WarEra, buffs are often in user.effects or currentActiveItems
+                hasPill: user.effects?.some((e: any) => e.type === 'damage_buff' || e.itemCode === 'cocain') || false
             });
         });
 

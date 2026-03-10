@@ -83,18 +83,12 @@ export default function MarketItemDetail({ item, price, onClose, t, language }: 
                                     <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest block mb-1">Precio Actual</span>
                                     <div className="flex items-center gap-2">
                                         <span className="text-2xl font-mono font-black text-white">{avgPrice.toFixed(4)}</span>
-                                        <div className="w-5 h-5 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]">
-                                            <div className="w-2 h-2 rounded-full bg-amber-500" />
-                                        </div>
                                     </div>
                                 </div>
                                 <div className="bg-white/5 border border-white/5 p-4 rounded-2xl flex flex-col justify-between">
                                     <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest block mb-1">Volumen 24h (Dinero)</span>
                                     <div className="flex items-center gap-2">
                                         <span className="text-2xl font-mono font-black text-white">{volume >= 1000 ? (volume / 1000).toFixed(1) + 'K' : volume.toFixed(2)}</span>
-                                        <div className="w-5 h-5 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                                            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                                        </div>
                                     </div>
                                 </div>
                                 <div className="bg-white/5 border border-white/5 p-4 rounded-2xl flex flex-col justify-between">
@@ -116,7 +110,7 @@ export default function MarketItemDetail({ item, price, onClose, t, language }: 
                                     <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.4em] italic mb-1">Análisis de Tendencia</h3>
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                                        <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">Escala: 7 Días / Agregado</span>
+                                        <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">Escala: 30 Días / Histórico</span>
                                     </div>
                                 </div>
                                 <div className="absolute inset-x-8 bottom-12 top-24 opacity-60">

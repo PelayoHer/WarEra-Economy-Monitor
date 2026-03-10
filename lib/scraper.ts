@@ -153,7 +153,7 @@ async function scrapePrice(itemId: string, token: string): Promise<{ price: numb
             price: currentPrice,
             change24h,
             volume24h,
-            history: history.slice(-7), // Last 7 days for the sparkline
+            history: history.slice(-30), // Last 30 days for the sparkline
             spread
         };
     } catch (error: any) {

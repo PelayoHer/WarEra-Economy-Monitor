@@ -186,62 +186,62 @@ function MemberRow({ member, t }: { member: IntelUser; t: any }) {
     const isReady = member.health > 80 && member.energy > 5;
 
     return (
-        <div className="bg-background/60 border border-border/40 p-4 rounded-2xl group/member hover:border-primary/40 hover:bg-primary/5 transition-all">
-            <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary flex-shrink-0 border border-border/50">
+        <div className="bg-background/60 border border-border/40 p-5 rounded-3xl group/member hover:border-primary/40 hover:bg-primary/5 transition-all shadow-lg">
+            <div className="flex items-center gap-6">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-secondary flex-shrink-0 border border-border/50 shadow-inner">
                     {member.avatar ? (
                         <img src={member.avatar} alt={member.username} className="w-full h-full object-cover" />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-foreground/40 italic font-black text-sm">
+                        <div className="w-full h-full flex items-center justify-center text-foreground/40 italic font-black text-xl">
                             ?
                         </div>
                     )}
                 </div>
 
                 <div className="flex-grow">
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="font-black text-sm tracking-tight group-hover/member:text-primary transition-colors italic">
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                        <span className="font-black text-lg tracking-tight group-hover/member:text-primary transition-colors italic">
                             {member.username}
                         </span>
-                        <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-mono text-foreground/40 font-bold uppercase italic">
+                        <div className="flex items-center gap-4">
+                            <span className="text-xs font-mono text-foreground/60 font-bold uppercase italic bg-secondary/30 px-2 py-1 rounded-md">
                                 {t.level} {member.level}
                             </span>
-                            <div className={`w-2 h-2 rounded-full ${isReady ? 'bg-green-500 animate-pulse' : 'bg-red-500/50'}`} />
+                            <div className={`w-3 h-3 rounded-full ${isReady ? 'bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-red-500/50'}`} />
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2">
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-1">
-                                <Heart className="w-2 h-2 text-red-500" />
-                                <span className="text-[7px] font-mono font-bold text-foreground/30 uppercase tracking-[0.05em]">{t.healthStatus}</span>
+                    <div className="grid grid-cols-4 gap-4">
+                        <div className="space-y-1.5">
+                            <div className="flex items-center gap-1.5">
+                                <Heart className="w-3 h-3 text-red-500" />
+                                <span className="text-[8px] font-mono font-bold text-foreground/50 uppercase tracking-[0.05em]">{t.healthStatus}</span>
                             </div>
-                            <div className="h-1 bg-secondary rounded-full overflow-hidden">
-                                <div className="h-full bg-red-500 transition-all duration-1000" style={{ width: `${Math.min(member.health, 100)}%` }} />
-                            </div>
-                        </div>
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-1">
-                                <Zap className="w-2 h-2 text-primary" />
-                                <span className="text-[7px] font-mono font-bold text-foreground/30 uppercase tracking-[0.05em]">{t.energyStatus}</span>
-                            </div>
-                            <div className="h-1 bg-secondary rounded-full overflow-hidden">
-                                <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${Math.min((member.energy / 100) * 100, 100)}%` }} />
+                            <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                                <div className="h-full bg-red-500 transition-all duration-1000 shadow-[0_0_5px_rgba(239,68,68,0.5)]" style={{ width: `${Math.min(member.health, 100)}%` }} />
                             </div>
                         </div>
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-1">
-                                <Utensils className="w-2 h-2 text-amber-500" />
-                                <span className="text-[7px] font-mono font-bold text-foreground/30 uppercase tracking-[0.05em]">{t.hungerStatus}</span>
+                        <div className="space-y-1.5">
+                            <div className="flex items-center gap-1.5">
+                                <Zap className="w-3 h-3 text-primary" />
+                                <span className="text-[8px] font-mono font-bold text-foreground/50 uppercase tracking-[0.05em]">{t.energyStatus}</span>
                             </div>
-                            <div className="h-1 bg-secondary rounded-full overflow-hidden">
-                                <div className="h-full bg-amber-500 transition-all duration-1000" style={{ width: `${Math.min(member.hunger, 100)}%` }} />
+                            <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                                <div className="h-full bg-primary transition-all duration-1000 shadow-[0_0_5px_rgba(var(--primary),0.5)]" style={{ width: `${Math.min((member.energy / 100) * 100, 100)}%` }} />
                             </div>
                         </div>
-                        <div className="space-y-1 text-right">
-                            <div className="text-[7px] font-mono font-bold text-foreground/30 uppercase tracking-[0.05em] mb-1">{t.intelRank}</div>
-                            <div className="text-[10px] font-black text-primary leading-none italic">
+                        <div className="space-y-1.5">
+                            <div className="flex items-center gap-1.5">
+                                <Utensils className="w-3 h-3 text-amber-500" />
+                                <span className="text-[8px] font-mono font-bold text-foreground/50 uppercase tracking-[0.05em]">{t.hungerStatus}</span>
+                            </div>
+                            <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                                <div className="h-full bg-amber-500 transition-all duration-1000 shadow-[0_0_5px_rgba(245,158,11,0.5)]" style={{ width: `${Math.min(member.hunger, 100)}%` }} />
+                            </div>
+                        </div>
+                        <div className="space-y-1.5 text-right">
+                            <div className="text-[8px] font-mono font-bold text-foreground/50 uppercase tracking-[0.05em] mb-1">{t.intelRank}</div>
+                            <div className="text-sm font-black text-primary leading-none italic">
                                 {member.rank}
                             </div>
                         </div>

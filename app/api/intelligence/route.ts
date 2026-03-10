@@ -134,8 +134,14 @@ export async function GET() {
             });
         });
 
-        // Convert to array and sort by member count
-        const result = Object.values(groupedMus).sort((a: any, b: any) => b.members.length - a.members.length);
+        // Convert to array and sort:
+        // 1. Established MUs first (by member count)
+        // 2. Civilians/Others ALWAYS last
+        const result = Object.values(groupedMus).sort((a: any, b: any) => {
+            if (a.id === 'no-mu') return 1;
+            if (b.id === 'no-mu') return -1;
+            return b.members.length - a.members.length;
+        });
 
         return NextResponse.json({ mus: result });
 

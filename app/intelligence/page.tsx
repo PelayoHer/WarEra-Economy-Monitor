@@ -78,7 +78,7 @@ export default function IntelligencePage() {
                         transition={{ delay: 0.2 }}
                         className="text-foreground/60 max-w-2xl mx-auto text-lg leading-relaxed"
                     >
-                        {t.secretTitle} - Spain Surveillance Matrix
+                        {t.secretTitle}
                     </motion.p>
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}

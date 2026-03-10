@@ -190,61 +190,78 @@ function MUCard({ mu, language }: { mu: IntelMU; language: Language }) {
 
 function MemberRow({ member, t }: { member: IntelUser; t: any }) {
     return (
-        <div className="glass-card bg-background/40 p-5 rounded-3xl group/member border-border/20 hover:border-primary/40 hover:bg-primary/5 transition-all shadow-lg hover:shadow-primary/5">
-            <div className="flex items-center gap-6">
-                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-secondary/80 flex-shrink-0 border border-border/50 shadow-inner group-hover/member:border-primary/30 transition-colors">
+        <div className="glass-card bg-background/40 p-6 rounded-[2.5rem] group/member border-border/20 hover:border-primary/40 hover:bg-primary/5 transition-all shadow-xl hover:shadow-primary/10">
+            <div className="flex items-start gap-6">
+                <div className="w-16 h-16 rounded-[1.5rem] overflow-hidden bg-secondary/80 flex-shrink-0 border border-border/50 shadow-inner group-hover/member:border-primary/30 transition-colors">
                     {member.avatar ? (
                         <img src={member.avatar} alt={member.username} className="w-full h-full object-cover" />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-foreground/20 italic font-black text-3xl">
-                            <User className="w-8 h-8" />
+                            <User className="w-10 h-10" />
                         </div>
                     )}
                 </div>
 
-                <div className="flex-grow">
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                        <span className="font-black text-lg tracking-tight group-hover/member:text-primary transition-colors italic uppercase leading-tight">
+                <div className="flex-grow min-w-0">
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                        <span className="font-black text-xl tracking-tight group-hover/member:text-primary transition-colors italic uppercase leading-tight truncate">
                             {member.username}
                         </span>
-                        <div className="flex items-center gap-4">
-                            <span className="text-[10px] font-mono text-foreground/50 font-black uppercase italic bg-primary/5 border border-primary/10 px-2 py-0.5 rounded shadow-sm">
-                                {t.level} {member.level}
+                        <div className="flex flex-col items-end">
+                            <span className="text-[10px] font-mono text-foreground/30 font-black uppercase tracking-[0.1em] mb-0.5">{t.level}</span>
+                            <span className="text-sm font-mono text-primary font-black italic bg-primary/10 border border-primary/20 px-2 shadow-sm rounded">
+                                {member.level}
                             </span>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-4 gap-6">
+                        {/* Health - PRIMARY COMBAT STAT */}
                         <div className="space-y-2">
-                            <div className="flex items-center gap-1.5 opacity-60">
-                                <Heart className="w-3 h-3 text-red-500" />
-                                <span className="text-[8px] font-mono font-black text-foreground uppercase tracking-[0.1em]">{t.healthStatus}</span>
+                            <div className="flex items-center justify-between opacity-80">
+                                <div className="flex items-center gap-1.5">
+                                    <Heart className="w-3.5 h-3.5 text-red-500" />
+                                    <span className="text-[9px] font-mono font-black text-foreground uppercase tracking-[0.1em]">{t.healthStatus}</span>
+                                </div>
+                                <span className="text-[9px] font-mono font-black text-red-500 italic drop-shadow-sm">{Math.round(member.health)}%</span>
                             </div>
-                            <div className="h-1.5 bg-secondary/50 rounded-full overflow-hidden border border-white/5">
-                                <div className="h-full bg-red-500 transition-all duration-1000 shadow-[0_0_10px_rgba(239,68,68,0.4)]" style={{ width: `${Math.min(member.health, 100)}%` }} />
+                            <div className="h-2 bg-secondary/50 rounded-full overflow-hidden border border-white/5 ring-1 ring-black/20">
+                                <div className="h-full bg-red-500 transition-all duration-1000 shadow-[0_0_10px_rgba(239,68,68,0.5)]" style={{ width: `${Math.min(member.health, 100)}%` }} />
                             </div>
                         </div>
+
+                        {/* Energy */}
                         <div className="space-y-2">
-                            <div className="flex items-center gap-1.5 opacity-60">
-                                <Zap className="w-3 h-3 text-primary" />
-                                <span className="text-[8px] font-mono font-black text-foreground uppercase tracking-[0.1em]">{t.energyStatus}</span>
+                            <div className="flex items-center justify-between opacity-80">
+                                <div className="flex items-center gap-1.5">
+                                    <Zap className="w-3.5 h-3.5 text-primary" />
+                                    <span className="text-[9px] font-mono font-black text-foreground uppercase tracking-[0.1em]">{t.energyStatus}</span>
+                                </div>
+                                <span className="text-[9px] font-mono font-black text-primary italic drop-shadow-sm">{Math.round(member.energy)}%</span>
                             </div>
-                            <div className="h-1.5 bg-secondary/50 rounded-full overflow-hidden border border-white/5">
-                                <div className="h-full bg-primary transition-all duration-1000 shadow-[0_0_10px_rgba(var(--primary),0.4)]" style={{ width: `${Math.min((member.energy / 100) * 100, 100)}%` }} />
+                            <div className="h-2 bg-secondary/50 rounded-full overflow-hidden border border-white/5 ring-1 ring-black/20">
+                                <div className="h-full bg-primary transition-all duration-1000 shadow-[0_0_10px_rgba(var(--primary),0.5)]" style={{ width: `${Math.min((member.energy / 100) * 100, 100)}%` }} />
                             </div>
                         </div>
+
+                        {/* Hunger */}
                         <div className="space-y-2">
-                            <div className="flex items-center gap-1.5 opacity-60">
-                                <Utensils className="w-3 h-3 text-amber-500" />
-                                <span className="text-[8px] font-mono font-black text-foreground uppercase tracking-[0.1em]">{t.hungerStatus}</span>
+                            <div className="flex items-center justify-between opacity-80">
+                                <div className="flex items-center gap-1.5">
+                                    <Utensils className="w-3.5 h-3.5 text-amber-500" />
+                                    <span className="text-[9px] font-mono font-black text-foreground uppercase tracking-[0.1em]">{t.hungerStatus}</span>
+                                </div>
+                                <span className="text-[9px] font-mono font-black text-amber-500 italic drop-shadow-sm">{Math.round(member.hunger)}%</span>
                             </div>
-                            <div className="h-1.5 bg-secondary/50 rounded-full overflow-hidden border border-white/5">
-                                <div className="h-full bg-amber-500 transition-all duration-1000 shadow-[0_0_10px_rgba(245,158,11,0.4)]" style={{ width: `${Math.min(member.hunger, 100)}%` }} />
+                            <div className="h-2 bg-secondary/50 rounded-full overflow-hidden border border-white/5 ring-1 ring-black/20">
+                                <div className="h-full bg-amber-500 transition-all duration-1000 shadow-[0_0_10px_rgba(245,158,11,0.5)]" style={{ width: `${Math.min(member.hunger, 100)}%` }} />
                             </div>
                         </div>
-                        <div className="space-y-1.5 text-right">
-                            <div className="text-[8px] font-mono font-black text-foreground opacity-30 uppercase tracking-[0.1em] mb-1 leading-none">{t.intelRank}</div>
-                            <div className="text-base font-black text-primary leading-none italic drop-shadow-sm">
+
+                        {/* Rank - PRIMARY COMBAT STAT */}
+                        <div className="flex flex-col items-end justify-center">
+                            <span className="text-[10px] font-mono font-black text-foreground opacity-30 uppercase tracking-[0.1em] mb-1 leading-none">{t.intelRank}</span>
+                            <div className="text-xl font-black text-primary leading-none italic drop-shadow-[0_0_8px_rgba(var(--primary),0.3)]">
                                 {member.rank}
                             </div>
                         </div>

@@ -17,6 +17,7 @@ export interface MarketPrice {
     lastUpdated: string;
     change24h?: number;
     volume24h?: number;
+    spread?: number;
     history?: { valueAt: string; avgValue: number }[];
 }
 

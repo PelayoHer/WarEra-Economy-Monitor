@@ -47,6 +47,7 @@ export async function scrapeAllPrices(recipes: Recipe[]): Promise<ScrapeResult> 
                         averagePrice: result.price,
                         change24h: result.change24h,
                         volume24h: result.volume24h,
+                        spread: result.spread,
                         history: result.history,
                         lastUpdated: new Date().toISOString()
                     });
@@ -73,7 +74,7 @@ export async function scrapeAllPrices(recipes: Recipe[]): Promise<ScrapeResult> 
     }
 }
 
-async function scrapePrice(itemId: string, token: string): Promise<{ price: number; change24h: number; volume24h: number; history: any[] } | null> {
+async function scrapePrice(itemId: string, token: string): Promise<{ price: number; change24h: number; volume24h: number; spread: number; history: any[] } | null> {
     try {
         // tRPC endpoint parameters
         const input = { "0": { "itemCode": itemId } };
@@ -114,23 +115,46 @@ async function scrapePrice(itemId: string, token: string): Promise<{ price: numb
         }
 
         const history = itemResult.values || [];
-        const price = itemResult.currentValue || itemResult.lastPrice || 0;
-        const volume24h = history.length > 0 ? history[history.length - 1].totalValue : 0;
+        const currentPrice = typeof itemResult.currentValue === 'number' ? itemResult.currentValue : parseFloat(itemResult.currentValue || '0');
 
+        // 1. Calculate 24h Volume (Weighted estimate for rolling 24h since we only have daily data)
+        // Rolling Vol = Vol_Today + (1 - CurrentHour/24) * Vol_Yesterday
+        let volume24h = 0;
+        if (history.length >= 2) {
+            const todayVol = history[history.length - 1].totalValue || 0;
+            const yesterdayVol = history[history.length - 2].totalValue || 0;
+            const hourUTC = new Date().getUTCHours();
+            const weightYesterday = Math.max(0, 1 - (hourUTC / 24));
+            volume24h = todayVol + (yesterdayVol * weightYesterday);
+        } else if (history.length === 1) {
+            volume24h = history[0].totalValue || 0;
+        }
+
+        // 2. Calculate 24h Change (Current vs Yesterday's Avg)
         let change24h = 0;
         if (history.length >= 2) {
-            const last = history[history.length - 1].avgValue;
-            const prev = history[history.length - 2].avgValue;
-            if (prev > 0) {
-                change24h = ((last - prev) / prev) * 100;
+            const prevAvg = history[history.length - 2].avgValue || currentPrice;
+            if (prevAvg > 0) {
+                change24h = ((currentPrice - prevAvg) / prevAvg) * 100;
             }
         }
 
+        // 3. Calculate Spread from real orders
+        let spread = currentPrice * 0.02; // Default estimate
+        const sells = itemResult.sellOrders || [];
+        const buys = itemResult.buyOrders || [];
+        if (sells.length > 0 && buys.length > 0) {
+            const minSell = Math.min(...sells.map((o: any) => o.price));
+            const maxBuy = Math.max(...buys.map((o: any) => o.price));
+            if (minSell > maxBuy) spread = minSell - maxBuy;
+        }
+
         return {
-            price: typeof price === 'number' ? price : parseFloat(price),
+            price: currentPrice,
             change24h,
             volume24h,
-            history: history.slice(-7) // Last 7 days for the sparkline
+            history: history.slice(-7), // Last 7 days for the sparkline
+            spread
         };
     } catch (error: any) {
         if (error.message === 'TOKEN_EXPIRED') throw error;

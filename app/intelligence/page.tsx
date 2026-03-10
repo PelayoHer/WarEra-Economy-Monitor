@@ -159,10 +159,38 @@ export default function IntelligencePage() {
 }
 
 function CombatSummaryTable({ data, t }: { data: IntelMU[]; t: any }) {
+    const [sortConfig, setSortConfig] = useState<{ key: keyof IntelUser | 'muName'; direction: 'asc' | 'desc' }>({
+        key: 'rank',
+        direction: 'desc'
+    });
+
     // Flatten all members and add MU name to each
     const allMembers = data.flatMap(mu =>
         mu.members.map(m => ({ ...m, muName: mu.name, muAvatar: mu.avatar }))
-    ).sort((a, b) => b.rank - a.rank);
+    ).sort((a, b) => {
+        const valA = a[sortConfig.key] ?? 0;
+        const valB = b[sortConfig.key] ?? 0;
+
+        if (typeof valA === 'string' && typeof valB === 'string') {
+            return sortConfig.direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+
+        return sortConfig.direction === 'asc' ? (Number(valA) - Number(valB)) : (Number(valB) - Number(valA));
+    });
+
+    const handleSort = (key: keyof IntelUser | 'muName') => {
+        setSortConfig(prev => ({
+            key,
+            direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc'
+        }));
+    };
+
+    const SortIcon = ({ column }: { column: string }) => {
+        if (sortConfig.key !== column) return <ChevronDown className="w-3 h-3 opacity-20 ml-1 inline-block" />;
+        return sortConfig.direction === 'desc' ?
+            <ChevronDown className="w-3 h-3 text-primary ml-1 inline-block" /> :
+            <ChevronDown className="w-3 h-3 text-primary ml-1 inline-block rotate-180" />;
+    };
 
     return (
         <div className="glass-card rounded-[3rem] border border-border/20 overflow-hidden shadow-2xl backdrop-blur-3xl">
@@ -170,14 +198,49 @@ function CombatSummaryTable({ data, t }: { data: IntelMU[]; t: any }) {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-primary/10 border-b border-primary/20">
-                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.rank}</th>
-                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Agente</th>
-                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Unidad</th>
-                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.level}</th>
-                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.intelRank}</th>
-                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Ataque</th>
-                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.healthStatus}</th>
-                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Daño Sem.</th>
+                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">#</th>
+                            <th
+                                className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em] cursor-pointer hover:bg-primary/10 transition-colors"
+                                onClick={() => handleSort('username')}
+                            >
+                                Agente <SortIcon column="username" />
+                            </th>
+                            <th
+                                className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em] cursor-pointer hover:bg-primary/10 transition-colors"
+                                onClick={() => handleSort('muName')}
+                            >
+                                Unidad <SortIcon column="muName" />
+                            </th>
+                            <th
+                                className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em] cursor-pointer hover:bg-primary/10 transition-colors"
+                                onClick={() => handleSort('level')}
+                            >
+                                {t.level} <SortIcon column="level" />
+                            </th>
+                            <th
+                                className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em] cursor-pointer hover:bg-primary/10 transition-colors"
+                                onClick={() => handleSort('rank')}
+                            >
+                                {t.intelRank} <SortIcon column="rank" />
+                            </th>
+                            <th
+                                className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em] cursor-pointer hover:bg-primary/10 transition-colors"
+                                onClick={() => handleSort('attack')}
+                            >
+                                Ataque <SortIcon column="attack" />
+                            </th>
+                            <th
+                                className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em] cursor-pointer hover:bg-primary/10 transition-colors"
+                                onClick={() => handleSort('health')}
+                            >
+                                {t.healthStatus} <SortIcon column="health" />
+                            </th>
+                            <th
+                                className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em] cursor-pointer hover:bg-primary/10 transition-colors"
+                                onClick={() => handleSort('weeklyDamage')}
+                            >
+                                Daño Sem. <SortIcon column="weeklyDamage" />
+                            </th>
                             <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Estado</th>
                         </tr>
                     </thead>
@@ -247,7 +310,7 @@ function CombatSummaryTable({ data, t }: { data: IntelMU[]; t: any }) {
                                     <td className="px-8 py-5">
                                         <div className="flex flex-col">
                                             <span className="font-mono font-black text-primary leading-none italic">{member.weeklyDamage.toLocaleString()}</span>
-                                            <span className="text-[8px] font-mono text-foreground/30 uppercase mt-1">WEEKLY</span>
+                                            <span className="text-[8px] font-mono text-foreground/30 uppercase mt-1">SEM.</span>
                                         </div>
                                     </td>
                                     <td className="px-8 py-5">

@@ -125,9 +125,127 @@ export default function IntelligencePage() {
                             ))}
                         </motion.div>
                     )}
+
+                    {!loading && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.8 }}
+                            className="space-y-8 pt-20"
+                        >
+                            <div className="flex flex-col items-center gap-4 text-center">
+                                <h2 className="text-4xl font-black text-foreground uppercase italic tracking-tighter drop-shadow-lg">
+                                    Registro de Despliegue Nacional
+                                </h2>
+                                <p className="text-foreground/40 text-sm font-mono uppercase tracking-[0.2em]">Resumen operativo de fuerzas activas</p>
+                            </div>
+                            <CombatSummaryTable data={data} t={t} />
+                        </motion.div>
+                    )}
                 </AuthGate>
             </div>
         </main>
+    );
+}
+
+function CombatSummaryTable({ data, t }: { data: IntelMU[]; t: any }) {
+    // Flatten all members and add MU name to each
+    const allMembers = data.flatMap(mu =>
+        mu.members.map(m => ({ ...m, muName: mu.name, muAvatar: mu.avatar }))
+    ).sort((a, b) => b.rank - a.rank);
+
+    return (
+        <div className="glass-card rounded-[3rem] border border-border/20 overflow-hidden shadow-2xl backdrop-blur-3xl">
+            <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-primary/10 border-b border-primary/20">
+                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.rank}</th>
+                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Agente</th>
+                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Unidad</th>
+                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.level}</th>
+                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.intelRank}</th>
+                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">{t.healthStatus}</th>
+                            <th className="px-8 py-5 text-[10px] font-mono font-black text-primary uppercase tracking-[0.2em]">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/10">
+                        {allMembers.map((member, idx) => {
+                            const isReady = member.health >= 90 && member.hasPill;
+                            return (
+                                <tr key={member.id} className="group hover:bg-primary/5 transition-colors">
+                                    <td className="px-8 py-5">
+                                        <span className="text-sm font-mono font-black text-foreground/20 italic">#{idx + 1}</span>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-xl overflow-hidden bg-secondary border border-border/50 flex-shrink-0">
+                                                {member.avatar ? (
+                                                    <img src={member.avatar} alt={member.username} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-foreground/20 italic font-black">?</div>
+                                                )}
+                                            </div>
+                                            <span className="font-black text-lg tracking-tighter uppercase italic group-hover:text-primary transition-colors truncate max-w-[150px]">
+                                                {member.username}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <div className="flex items-center gap-2">
+                                            {member.muAvatar ? (
+                                                <img src={member.muAvatar} alt="" className="w-5 h-5 rounded-md opacity-60" />
+                                            ) : (
+                                                <Shield className="w-4 h-4 text-foreground/20" />
+                                            )}
+                                            <span className="text-[10px] font-mono font-bold text-foreground/40 uppercase truncate max-w-[120px]">
+                                                {member.muName}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <span className="font-mono font-black text-primary italic bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+                                            {member.level}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <span className="font-mono font-black text-primary text-xl drop-shadow-[0_0_8px_rgba(var(--primary),0.3)]">
+                                            {member.rank}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <div className="flex flex-col gap-1.5 min-w-[100px]">
+                                            <div className="flex justify-between text-[10px] font-mono font-black">
+                                                <span className={member.health < 50 ? 'text-red-500' : 'text-foreground/40'}>{Math.round(member.health)}%</span>
+                                            </div>
+                                            <div className="h-1.5 w-24 bg-secondary/50 rounded-full overflow-hidden border border-white/5">
+                                                <div
+                                                    className={`h-full transition-all duration-1000 ${member.health < 50 ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]'}`}
+                                                    style={{ width: `${Math.min(member.health, 100)}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <div className="flex items-center gap-3">
+                                            {member.hasPill && (
+                                                <div className="flex items-center gap-1 text-[9px] font-mono font-black text-primary bg-primary/10 px-2 py-1 rounded-full border border-primary/20 animate-pulse">
+                                                    <Activity className="w-3 h-3" />
+                                                    PILL
+                                                </div>
+                                            )}
+                                            {isReady && (
+                                                <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" title="COMBAT READY" />
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     );
 }
 

@@ -15,6 +15,9 @@ export interface MarketPrice {
     productId: string;
     averagePrice: number;
     lastUpdated: string;
+    change24h?: number;
+    volume24h?: number;
+    history?: { valueAt: string; avgValue: number }[];
 }
 
 export interface PriceOverrides {

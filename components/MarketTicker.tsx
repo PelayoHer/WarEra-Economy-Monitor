@@ -33,7 +33,11 @@ export default function MarketTicker() {
         return [...recipes]
             .map(r => {
                 const mp = prices.find(p => p.productId === r.id);
-                return { ...r, price: mp?.averagePrice || 0 };
+                return {
+                    ...r,
+                    price: mp?.averagePrice || 0,
+                    change: mp?.change24h || 0
+                };
             })
             .filter(r => r.price > 0)
             .sort((a, b) => b.price - a.price)
@@ -45,7 +49,7 @@ export default function MarketTicker() {
     return (
         <div className="fixed top-16 left-0 right-0 h-10 bg-black/80 border-b border-primary/20 overflow-hidden flex items-center z-40 backdrop-blur-sm pointer-events-none">
             <div className="animate-ticker flex whitespace-nowrap gap-8 px-4 pointer-events-auto pause-on-hover">
-                {/* Duplicate items to create seamless loop effect (x4 should be enough for wide screens) */}
+                {/* Duplicate items for seamless loop */}
                 {[...tickerItems, ...tickerItems, ...tickerItems, ...tickerItems].map((item, i) => (
                     <div key={`${item.id}-${i}`} className="flex items-center gap-2">
                         <ItemImage
@@ -53,11 +57,14 @@ export default function MarketTicker() {
                             itemName={(t.itemNames as Record<string, string>)[item.id] || item.name}
                             size={16}
                         />
-                        <span className="font-bold text-xs uppercase tracking-wider text-slate-400">
+                        <span className="font-bold text-[10px] uppercase tracking-wider text-slate-500 italic">
                             {(t.itemNames as Record<string, string>)[item.id] || item.name}
                         </span>
-                        <span className="font-mono text-success text-sm">
+                        <span className="font-mono text-white text-xs font-black">
                             {item.price.toFixed(2)}
+                        </span>
+                        <span className={`text-[10px] font-mono font-bold ${item.change >= 0 ? 'text-success' : 'text-red-500'}`}>
+                            {item.change >= 0 ? '+' : ''}{item.change.toFixed(1)}%
                         </span>
                     </div>
                 ))}

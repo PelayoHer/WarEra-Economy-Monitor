@@ -40,11 +40,14 @@ export async function scrapeAllPrices(recipes: Recipe[]): Promise<ScrapeResult> 
         // For now, simple sequential loop with slight delay
         for (const id of itemIds) {
             try {
-                const price = await scrapePrice(id, token);
-                if (price !== null) {
+                const result = await scrapePrice(id, token);
+                if (result !== null) {
                     prices.push({
                         productId: id,
-                        averagePrice: price,
+                        averagePrice: result.price,
+                        change24h: result.change24h,
+                        volume24h: result.volume24h,
+                        history: result.history,
                         lastUpdated: new Date().toISOString()
                     });
                 }
@@ -70,7 +73,7 @@ export async function scrapeAllPrices(recipes: Recipe[]): Promise<ScrapeResult> 
     }
 }
 
-async function scrapePrice(itemId: string, token: string): Promise<number | null> {
+async function scrapePrice(itemId: string, token: string): Promise<{ price: number; change24h: number; volume24h: number; history: any[] } | null> {
     try {
         // tRPC endpoint parameters
         const input = { "0": { "itemCode": itemId } };
@@ -103,7 +106,6 @@ async function scrapePrice(itemId: string, token: string): Promise<number | null
         const data = await response.json();
 
         // tRPC returns an array for batch requests
-        // Structure is [{ result: { data: { itemCode, currentValue, ... } } }]
         const itemResult = data[0]?.result?.data;
 
         if (!itemResult) {
@@ -111,15 +113,25 @@ async function scrapePrice(itemId: string, token: string): Promise<number | null
             return null;
         }
 
+        const history = itemResult.values || [];
         const price = itemResult.currentValue || itemResult.lastPrice || 0;
+        const volume24h = history.length > 0 ? history[history.length - 1].totalQuantity : 0;
 
-        // Log specifically if price is 0 to verify it's real 0 or missing
-        if (price === 0) {
-            // console.log(`[SCRAPER] Price for ${itemId} is 0`, itemData);
+        let change24h = 0;
+        if (history.length >= 2) {
+            const last = history[history.length - 1].avgValue;
+            const prev = history[history.length - 2].avgValue;
+            if (prev > 0) {
+                change24h = ((last - prev) / prev) * 100;
+            }
         }
 
-        return typeof price === 'number' ? price : parseFloat(price);
-
+        return {
+            price: typeof price === 'number' ? price : parseFloat(price),
+            change24h,
+            volume24h,
+            history: history.slice(-7) // Last 7 days for the sparkline
+        };
     } catch (error: any) {
         if (error.message === 'TOKEN_EXPIRED') throw error;
         console.error(`[SCRAPER] Exception fetching ${itemId}:`, error.message);

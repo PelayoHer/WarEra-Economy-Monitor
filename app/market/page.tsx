@@ -13,6 +13,10 @@ import { formatDistanceToNow } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { StockBackground } from '@/components/StockBackground';
 import InflationBox from '@/components/market/InflationBox';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkline } from '@/components/market/Sparkline';
+import MarketItemDetail from '@/components/market/MarketItemDetail';
+import { Recipe } from '@/types';
 
 export default function MarketPage() {
     const [language] = useLocalStorage<Language>('language', 'es');
@@ -23,6 +27,7 @@ export default function MarketPage() {
     const [loading, setLoading] = useState(true);
     const [lastUpdate, setLastUpdate] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedItem, setSelectedItem] = useState<Recipe | null>(null);
 
     // Fetch prices
     const fetchPrices = useCallback(async () => {
@@ -142,59 +147,84 @@ export default function MarketPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        {filteredRecipes.map((recipe) => {
+                        {filteredRecipes.map((recipe, index) => {
                             const mp = getPrice(recipe.id);
                             const price = mp ? mp.averagePrice : 0;
                             const hasPrice = !!mp;
 
                             return (
-                                <div
+                                <motion.div
                                     key={recipe.id}
-                                    className="bg-slate-900/60 border border-slate-700/50 rounded-lg p-4 flex flex-col justify-between hover:border-primary/50 hover:bg-slate-800/80 transition-all group relative overflow-hidden"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index % 12 * 0.05 }}
+                                    className="bg-slate-900/60 border border-slate-700/50 rounded-2xl p-5 flex flex-col justify-between hover:border-primary/50 hover:bg-slate-800/80 transition-all group relative overflow-hidden shadow-xl hover:shadow-primary/10"
                                 >
-                                    <div className="absolute top-0 right-0 p-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                                        <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{recipe.id}</div>
+                                    {/* Sparkline Background */}
+                                    <div className="absolute inset-0 z-0 opacity-20 pointer-events-none group-hover:opacity-40 transition-opacity">
+                                        {mp && mp.history && (
+                                            <Sparkline data={mp.history} />
+                                        )}
                                     </div>
 
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <div className="relative">
-                                            <div className="absolute inset-0 bg-primary/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            <ItemImage
-                                                itemId={recipe.id}
-                                                itemName={(t.itemNames as Record<string, string>)[recipe.id] || recipe.name}
-                                                size={48}
-                                                className="relative z-10 drop-shadow-lg"
-                                            />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-slate-200 text-lg leading-tight group-hover:text-primary transition-colors">
-                                                {(t.itemNames as Record<string, string>)[recipe.id] || recipe.name}
-                                            </h3>
-                                            <span className="text-xs text-slate-500 font-mono">
-                                                WARERA: {recipe.id.substring(0, 3).toUpperCase()}
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <div className="relative z-10">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="relative">
+                                                <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                <ItemImage
+                                                    itemId={recipe.id}
+                                                    itemName={(t.itemNames as Record<string, string>)[recipe.id] || recipe.name}
+                                                    size={56}
+                                                    className="relative z-10 drop-shadow-2xl brightness-110 group-hover:scale-110 transition-transform duration-500"
+                                                />
+                                            </div>
 
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between items-end border-b border-white/5 pb-2">
-                                            <span className="text-xs text-slate-500 uppercase tracking-wider font-semibold">{t.currentPrice || 'PRICE'}</span>
-                                            {hasPrice ? (
-                                                <div className="text-right flex items-center gap-2">
-                                                    <div className="text-2xl font-mono font-bold text-success tracking-tight leading-none">
-                                                        {price.toFixed(2)}
-                                                    </div>
-                                                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" className="text-warning text-xl filter drop-shadow-black"><path d="M12 5C7.031 5 2 6.546 2 9.5S7.031 14 12 14c4.97 0 10-1.546 10-4.5S16.97 5 12 5zm-5 9.938v3c1.237.299 2.605.482 4 .541v-3a21.166 21.166 0 0 1-4-.541zm6 .54v3a20.994 20.994 0 0 0 4-.541v-3a20.994 20.994 0 0 1-4 .541zm6-1.181v3c1.801-.755 3-1.857 3-3.297v-3c0 1.44-1.199 2.542-3 3.297zm-14 3v-3C3.2 13.542 2 12.439 2 11v3c0 1.439 1.2 2.542 3 3.297z"></path></svg>
+                                            {hasPrice && mp.change24h !== undefined && (
+                                                <div className={`px-2 py-1 rounded-lg text-[10px] font-black font-mono border ${mp.change24h >= 0 ? 'bg-success/10 border-success/30 text-success' : 'bg-red-500/10 border-red-500/30 text-red-400'} shadow-lg backdrop-blur-md`}>
+                                                    {mp.change24h >= 0 ? '+' : ''}{mp.change24h.toFixed(1)}%
                                                 </div>
-                                            ) : (
-                                                <span className="text-slate-600 font-mono text-xl">-</span>
                                             )}
                                         </div>
+
+                                        <div className="space-y-1">
+                                            <h3 className="font-black text-slate-100 text-xl leading-tight group-hover:text-primary transition-colors uppercase italic tracking-tighter">
+                                                {(t.itemNames as Record<string, string>)[recipe.id] || recipe.name}
+                                            </h3>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] text-slate-500 font-mono font-bold uppercase tracking-widest bg-white/5 px-1.5 py-0.5 rounded">
+                                                    ID: {recipe.id}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="relative z-10 mt-6 pt-4 border-t border-white/5 space-y-4">
+                                        <div className="flex justify-between items-end">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black italic">Precio Actual</span>
+                                                <div className="text-2xl font-mono font-black text-slate-100 tracking-tighter mt-1">
+                                                    {hasPrice ? price.toFixed(2) : '-.--'}
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black italic text-right">Volumen 24h</span>
+                                                <div className="text-sm font-mono font-bold text-slate-400 mt-1">
+                                                    {mp?.volume24h ? (mp.volume24h / 1000).toFixed(1) + 'K' : '0.0K'} <span className="text-[8px] opacity-30 italic font-mono uppercase tracking-tighter">QTY</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => setSelectedItem(recipe)}
+                                            className="w-full py-2 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border border-primary/20 hover:border-transparent italic"
+                                        >
+                                            Analizar Datos
+                                        </button>
                                     </div>
 
                                     {/* Scanline effect */}
                                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent -translate-y-full group-hover:translate-y-full transition-transform duration-1000 pointer-events-none" />
-                                </div>
+                                </motion.div>
                             );
                         })}
                     </div>
@@ -204,6 +234,18 @@ export default function MarketPage() {
 
                 <Footer language={language} />
             </div>
+
+            <AnimatePresence>
+                {selectedItem && (
+                    <MarketItemDetail
+                        item={selectedItem}
+                        price={getPrice(selectedItem.id)}
+                        onClose={() => setSelectedItem(null)}
+                        t={t}
+                        language={language}
+                    />
+                )}
+            </AnimatePresence>
         </main>
     );
 }
